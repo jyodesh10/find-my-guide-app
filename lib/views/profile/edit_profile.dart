@@ -6,6 +6,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../constants/color_constants.dart';
 import '../../constants/url_constants.dart';
+import '../../controllers/profile_controller.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -15,6 +16,9 @@ class EditProfileView extends StatefulWidget {
 }
 
 class _EditProfileViewState extends State<EditProfileView> {
+
+  final controller = Get.put(ProfileController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,17 +78,26 @@ class _EditProfileViewState extends State<EditProfileView> {
           padding: EdgeInsets.only(left: 18.sp, bottom: 10.sp),
           child: Text("Username", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),),
         ),
-        const CustomTextfield(hintText: "username"),
+        CustomTextfield(
+          hintText: "username",
+          controller: controller.username,
+        ),
         Padding(
           padding: EdgeInsets.only(left: 18.sp, bottom: 10.sp),
           child: Text("Phone", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),),
         ),
-        const CustomTextfield(hintText: "phone"),
+        CustomTextfield(
+          hintText: "phone",
+          controller: controller.phone,
+        ),
         Padding(
           padding: EdgeInsets.only(left: 18.sp, bottom: 10.sp),
           child: Text("Date of birth", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),),
         ),
-        const CustomTextfield(hintText: "Dob"),
+        CustomTextfield(
+          hintText: "Dob",
+          controller: controller.dob,
+        ),
         Center(
           child: MaterialButton(
             color: blue,
@@ -92,7 +105,10 @@ class _EditProfileViewState extends State<EditProfileView> {
             minWidth: 38.w,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
             child: Text("Update", style: midTextStyle.copyWith(color: white, fontWeight: FontWeight.bold),),
-            onPressed: () {}
+            onPressed: () {
+              controller.updateUserById();
+
+            }
           ),
         ),
         SizedBox(

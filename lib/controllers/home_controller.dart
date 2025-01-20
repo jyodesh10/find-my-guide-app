@@ -20,6 +20,19 @@ class HomeController extends GetxController{
 
   var loading = false.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    fetchall();
+  }
+
+
+  fetchall() async {
+    await getToursRequest();
+    await getGuidesRequest();
+    await getBlogsRequest();
+  }
+
   Future getToursRequest() async {
     loading(true);
     List data = await handleRequest(

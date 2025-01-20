@@ -7,13 +7,26 @@ import 'package:findmyguide/utils/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../utils/dialog_boxes.dart';
 import '../widgets/navbar.dart';
 
 class LoginController extends GetxController{
   TextEditingController emailcon = TextEditingController();
   TextEditingController passwordcon = TextEditingController();
 
+
+  @override
+  void onInit() {
+    super.onInit();
+    if((SharedPref.read("email").toString().isNotEmpty && SharedPref.read("email").toString()!="null") && (SharedPref.read("password").toString().isNotEmpty && SharedPref.read("password").toString()!="null")) {
+      emailcon.text = SharedPref.read("email").toString();
+      passwordcon.text = SharedPref.read("password").toString();
+      Future.delayed(const Duration(milliseconds: 300), () => loginRequest());
+    }
+  }
+
   Future loginRequest() async {
+    loadingDialog();
     var data = await handleRequest(
       method: "post", 
       url: "${baseUrl}auth/login", 
