@@ -5,10 +5,13 @@ import '../constants/color_constants.dart';
 import '../constants/font_constants.dart';
 
 class CustomTextfield extends StatefulWidget {
-  const CustomTextfield({super.key, required this.hintText, this.prefixIcon});
+  const CustomTextfield({super.key, required this.hintText, this.prefixIcon, this.controller, this.margin, this.validator});
 
   final String hintText;
   final Widget? prefixIcon;
+  final TextEditingController? controller;
+  final EdgeInsetsGeometry? margin;
+  final FormFieldValidator? validator;
 
   @override
   State<CustomTextfield> createState() => _CustomTextfieldState();
@@ -18,7 +21,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 18.sp).copyWith(bottom: 18.sp),
+      margin: widget.margin ?? EdgeInsets.symmetric(horizontal: 18.sp).copyWith(bottom: 18.sp),
       height: 28.sp,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18.sp),
@@ -32,9 +35,11 @@ class _CustomTextfieldState extends State<CustomTextfield> {
         ]
       ),
       child: TextFormField(
+        validator: widget.validator,
         cursorColor: greyblueDrkDrk,
         cursorHeight: 20  .sp,
         autofocus: false,
+        controller: widget.controller,
         decoration: InputDecoration(
           filled: true,
           fillColor: white,

@@ -25,20 +25,7 @@ class _HomeViewState extends State<HomeView> {
   final controller = Get.put(HomeController());
 
   @override
-  void initState() {
-    super.initState();
-    fetchall();
-  }
-
-  fetchall() async {
-    await controller.getToursRequest();
-    await controller.getGuidesRequest();
-    await controller.getBlogsRequest();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // fetchall();
     return Scaffold(
       backgroundColor: primaryClr,
       body: SafeArea(

@@ -43,12 +43,13 @@ Future handleRequest(
       if (response.body.isNotEmpty) {
         Map<String, dynamic> errorData = jsonDecode(response.body);
         if (errorData.containsKey('message')) {
+          Get.back();
           Get.showSnackbar(GetSnackBar(
             message:errorData['message'],
             animationDuration: const Duration(milliseconds: 340),
             duration: const Duration(seconds: 1),
             margin: const EdgeInsets.all(20),
-            borderRadius: 20,            
+            borderRadius: 12,            
           ));
           throw Exception('API Error: ${errorData['message']}');
         }
