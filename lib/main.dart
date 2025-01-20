@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           title: "Find my guide",
           theme: ThemeData(
-            primarySwatch: Colors.deepPurple,
+            primarySwatch: Colors.grey,
           ),
           useInheritedMediaQuery: true,
           home: const SplashView(),

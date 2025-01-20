@@ -12,6 +12,6 @@ TextStyle titleStyle = GoogleFonts.manrope(
 TextStyle midTextStyle = GoogleFonts.manrope(
     fontSize: 15.sp, color: black, fontWeight: FontWeight.w400);
 TextStyle smallTextStyle = GoogleFonts.manrope(
-    fontSize: 13.4.sp, color: black, fontWeight: FontWeight.w400);
+    fontSize: 13.7.sp, color: black, fontWeight: FontWeight.w400);
 TextStyle subtitleStyle = GoogleFonts.manrope(
     fontSize: 14.sp, color: black, fontWeight: FontWeight.w400);

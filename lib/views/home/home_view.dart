@@ -4,11 +4,14 @@ import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/views/home/blog_detail_view.dart';
 import 'package:findmyguide/views/home/guide_detail_view.dart';
+import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../constants/url_constants.dart';
+import '../../utils/date_formatter.dart';
+import '../../widgets/custom_cacheimage.dart';
 import 'tour_detail_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -30,6 +33,7 @@ class _HomeViewState extends State<HomeView> {
   fetchall() async {
     await controller.getToursRequest();
     await controller.getGuidesRequest();
+    await controller.getBlogsRequest();
   }
 
   @override
@@ -44,10 +48,17 @@ class _HomeViewState extends State<HomeView> {
             children: [
               topSection(),
               searchSection(),
-              locationsSection(),
-              toursSection(),
-              blogsSection(),
-              guideSection(),
+              Obx(() => controller.loading.isTrue
+                ? const Center(child: LoadingGif())
+                : Column(
+                    children: [
+                      locationsSection(),
+                      toursSection(),
+                      blogsSection(),
+                      guideSection(),
+                    ],
+                  )
+              ),
               SizedBox(
                 height: 50.sp,
               )
@@ -113,36 +124,32 @@ class _HomeViewState extends State<HomeView> {
 
   searchSection() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 18.sp).copyWith(bottom: 18.sp),
-      height: 28.sp,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18.sp),
-        boxShadow: [
-          BoxShadow(
-            color: black.withOpacity(0.02),
-            blurRadius: 8,
-            spreadRadius: 10,
-            offset: const Offset(0, 2)
-          )
-        ]
-      ),
-      child: TextFormField(
-        cursorColor: greyblueDrkDrk,
-        cursorHeight: 20  .sp,
-        autofocus: false,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: white,
-          prefixIcon: const Icon(Icons.search,color: greyblueDrkDrk),
-          border: OutlineInputBorder(
+        margin: EdgeInsets.symmetric(horizontal: 18.sp).copyWith(bottom: 18.sp),
+        height: 28.sp,
+        decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18.sp),
-            borderSide: BorderSide.none,
-          ),
-          hintText: "Search tours, blogs or guides...",
-          hintStyle: midTextStyle.copyWith(color: greyblueDrkDrk)
-        ),
-      )
-    );
+            boxShadow: [
+              BoxShadow(
+                  color: black.withOpacity(0.02),
+                  blurRadius: 8,
+                  spreadRadius: 10,
+                  offset: const Offset(0, 2))
+            ]),
+        child: TextFormField(
+          cursorColor: greyblueDrkDrk,
+          cursorHeight: 20.sp,
+          autofocus: false,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: white,
+              prefixIcon: const Icon(Icons.search, color: greyblueDrkDrk),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18.sp),
+                borderSide: BorderSide.none,
+              ),
+              hintText: "Search tours, blogs or guides...",
+              hintStyle: midTextStyle.copyWith(color: greyblueDrkDrk)),
+        ));
   }
 
   locationsSection() {
@@ -162,7 +169,10 @@ class _HomeViewState extends State<HomeView> {
               SizedBox(
                 height: 8.sp,
               ),
-              Text("Patan", style: subtitleStyle,)
+              Text(
+                "Patan",
+                style: subtitleStyle,
+              )
             ],
           );
         },
@@ -200,32 +210,46 @@ class _HomeViewState extends State<HomeView> {
               return InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
-                  Get.to(()=> const TourDetailView(), transition: Transition.fade);
+                  Get.to(() => const TourDetailView(),
+                      transition: Transition.fade);
                 },
                 child: Column(
                   children: [
-                    Stack(
-                      children: [
-                        Container(
-                          height: 52.sp,
-                          width: 60.w,
-                          margin: EdgeInsets.only(bottom: 10.sp),
-                          decoration: BoxDecoration(
-                              color: greyblue,
-                              borderRadius: BorderRadius.circular(16),
-                              image: DecorationImage(
-                                  image: NetworkImage(index==0 ? dummyImg2 : dummyImg), fit: BoxFit.cover)),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 12.sp, left: 12.sp),
-                          padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 5.sp),
-                          decoration: BoxDecoration(
-                            color: greyblue,
-                            borderRadius: BorderRadius.circular(10),
+                    Card(
+                      color: transparent,
+                      elevation: 10,
+                      shadowColor: black.withOpacity(0.2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 52.sp,
+                            width: 60.w,
+                            margin: EdgeInsets.only(bottom: 10.sp),
+                            decoration: BoxDecoration(
+                                color: greyblue,
+                                borderRadius: BorderRadius.circular(16),
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        index == 0 ? dummyImg2 : dummyImg),
+                                    fit: BoxFit.cover)),
                           ),
-                          child: Text(controller.toursList[index].highlights!.duration.toString(), style: smallTextStyle,),
-                        )
-                      ],
+                          Container(
+                            margin: EdgeInsets.only(top: 12.sp, left: 12.sp),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.sp, vertical: 5.sp),
+                            decoration: BoxDecoration(
+                              color: greyblue,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              controller.toursList[index].highlights!.duration
+                                  .toString(),
+                              style: smallTextStyle,
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: 35.sp,
@@ -235,13 +259,14 @@ class _HomeViewState extends State<HomeView> {
                         children: [
                           Text(
                             controller.toursList[index].title.toString(),
-                            style: midTextStyle.copyWith(fontWeight: FontWeight.w600),
+                            style: midTextStyle.copyWith(
+                                fontWeight: FontWeight.w600),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             controller.toursList[index].price.toString(),
-                            style: smallTextStyle,
+                            style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -262,64 +287,69 @@ class _HomeViewState extends State<HomeView> {
   }
 
   blogsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(left: 20.sp),
-          child: Text(
-            "Blogs",
-            style: titleStyle,
-          ),
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.sp),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Blogs",
+              style: titleStyle,
+            ),
+            TextButton(
+              onPressed: () {}, 
+              child: Text("View all", style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),)
+            )
+          ],
         ),
-        SizedBox(
-          height: 12.sp,
-        ),
-        SizedBox(
-          height: 75.sp,
-          child: ListView.separated(
-            itemCount: controller.toursList.length,
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            padding: EdgeInsets.symmetric(horizontal: 18.sp),
-            itemBuilder: (context, index) {
-              return InkWell(
-                borderRadius: BorderRadius.circular(16),
-                onTap: () => Get.to(() => const BlogDetailView(), transition: Transition.fade),
+      ),
+      SizedBox(
+        height: 75.sp,
+        child: ListView.separated(
+          itemCount: controller.blogsList.length,
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          padding: EdgeInsets.symmetric(horizontal: 18.sp),
+          itemBuilder: (context, index) {
+            return InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () => Get.to(() => BlogDetailView(id: controller.blogsList[index].id.toString(),),
+                  transition: Transition.fade),
+              child: Card(
+                color: white,
+                elevation: 10,
+                shadowColor: black.withOpacity(0.2),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Column(
                   children: [
                     Container(
                       height: 50.sp,
                       width: 64.w,
                       decoration: const BoxDecoration(
-                          color: greyblue,
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                          image: DecorationImage(
-                              image: NetworkImage(dummyImg1), fit: BoxFit.cover)),
+                        color: greyblue,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16),
+                            topRight: Radius.circular(16)),
+                        image: DecorationImage(
+                            image: NetworkImage(dummyImg1), fit: BoxFit.cover)),
                     ),
                     Container(
-                      height: 55.sp,
+                      height: 54.sp,
                       width: 64.w,
                       decoration: const BoxDecoration(
-                        color: white,
-                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16))
-                      ),
+                          color: white,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16),
+                              bottomRight: Radius.circular(16))),
                       padding: EdgeInsets.all(12.sp),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "11 Unforgettable Experiences that Await in Guatemala",
-                            style: midTextStyle.copyWith(fontWeight: FontWeight.w600),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          SizedBox(
-                            height: 8.sp,
-                          ),
-                          Text(
-                            "06 July 2024",
-                            style: smallTextStyle.copyWith(fontWeight: FontWeight.w600,fontSize: 13.sp, color: greyblueDrkDrk),
+                            controller.blogsList[index].title.toString(),
+                            style: midTextStyle.copyWith(
+                                fontWeight: FontWeight.w600),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -327,10 +357,21 @@ class _HomeViewState extends State<HomeView> {
                             height: 8.sp,
                           ),
                           Text(
-                            """Adventure is out there…in Guatemala! Even though it is one of the most underrated countries to visit, Guatemala is a treasure trove of experiences for 
-                            curious adventurers, and not just of the adrenaline-pumping sort.""",
+                            DateTimeFormatter.formatDate(controller.blogsList[index].createdAt.toString()),
+                            style: smallTextStyle.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13.sp,
+                                color: greyblueDrkDrk),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(
+                            height: 8.sp,
+                          ),
+                          Text(
+                            controller.blogsList[index].content.toString(),
                             style: smallTextStyle,
-                            maxLines: 5,
+                            maxLines: 4,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -338,21 +379,24 @@ class _HomeViewState extends State<HomeView> {
                     )
                   ],
                 ),
-              );
-            },
-            separatorBuilder: (context, index) => SizedBox(
-              width: 15.sp,
-            ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) => SizedBox(
+            width: 15.sp,
           ),
-        )
-      ] 
-    );
+        ),
+      )
+    ]);
   }
 
   guideSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(
+          height: 15.sp,
+        ),
         Padding(
           padding: EdgeInsets.only(left: 20.sp),
           child: Text(
@@ -371,7 +415,8 @@ class _HomeViewState extends State<HomeView> {
             return InkWell(
               borderRadius: BorderRadius.circular(15.sp),
               onTap: () {
-                Get.to(()=> const GuideDetailView(), transition: Transition.fade);
+                Get.to(() => const GuideDetailView(),
+                    transition: Transition.fade);
               },
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,61 +428,66 @@ class _HomeViewState extends State<HomeView> {
                         width: 45.sp,
                         margin: EdgeInsets.only(left: 16.sp),
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.sp),
-                            border: Border.all(
-                              color: white,
-                              width: 6
-                            ),
-                            image: DecorationImage(
-                                image: NetworkImage(
-                                    "https://raw.githubusercontent.com/jyodesh10/find-my-guide/04050359b7c8a0a13ad9a573f8590401b12532e3/${controller.guidesList[index].image}"),
-                                fit: BoxFit.cover)),
+                          borderRadius: BorderRadius.circular(15.sp),
+                          border: Border.all(color: white, width: 6),
+                        ),
+                        child: CustomCachedNetworkImage(imageUrl: "$baseUrl${controller.guidesList[index].image}"),
+
                       ),
                       Positioned(
                         right: 0,
-                        child: CircleAvatar(
-                          radius: 15.sp,
-                          backgroundColor: white,
-                          child: const Icon(Icons.check, color: green,),
-                        ),
+                        child:  controller.guidesList[index].isVerified == false
+                          ? const SizedBox()
+                          : CircleAvatar(
+                            radius: 15.sp,
+                            backgroundColor: white,
+                            child: const Icon(
+                              Icons.check,
+                              color: green,
+                            ),
+                          ),
                       )
                     ],
                   ),
                   Expanded(
                     child: ListTile(
                       title: Text(
-                          "${controller.guidesList[index].firstname} ${controller.guidesList[index].lastname}", style: midTextStyle.copyWith(fontWeight: FontWeight.bold)),
+                          "${controller.guidesList[index].firstname} ${controller.guidesList[index].lastname}",
+                          style: midTextStyle.copyWith(
+                              fontWeight: FontWeight.bold)),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text("${controller.guidesList[index].location.city}, ${controller.guidesList[index].location.country}", style: subtitleStyle,),
+                          Text(
+                            "${controller.guidesList[index].location?.city}, ${controller.guidesList[index].location?.country}",
+                            style: subtitleStyle,
+                          ),
                           Divider(
                             color: black.withOpacity(0.1),
                             thickness: 1.5,
                           ),
                           RatingBar.readOnly(
-                            filledIcon: Icons.star_rounded, 
+                            filledIcon: Icons.star_rounded,
                             emptyIcon: Icons.star_border_rounded,
                             size: 20.sp,
-                            initialRating: 4,
+                            initialRating: double.parse( controller.guidesList[index].rating.toString()),
                             maxRating: 5,
                           ),
                           SizedBox(
                             height: 8.sp,
                           ),
                           RichText(
-                            text: TextSpan(
-                              text: "\$ ",
-                              style:  titleStyle.copyWith(fontSize: 15.5.sp, color: blue ),
-                              children: [
+                              text: TextSpan(
+                                  text: controller.guidesList[index].price?[0],
+                                  style: titleStyle.copyWith(
+                                      fontSize: 15.5.sp, color: blue),
+                                  children: [
                                 TextSpan(
-                                  text: "12 / hour",
-                                  style: titleStyle.copyWith(fontSize: 17.5.sp, color: blue )
-                                )
-                              ]
-                            )
-                          )
+                                    text: controller.guidesList[index].price?.replaceAll("\$", ""),
+                                    style: titleStyle.copyWith(
+                                        fontSize: 17.5.sp, color: blue))
+                              ]))
                         ],
                       ),
                     ),
