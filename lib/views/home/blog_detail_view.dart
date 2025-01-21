@@ -1,5 +1,4 @@
 import 'package:findmyguide/constants/font_constants.dart';
-import 'package:findmyguide/constants/url_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/utils/date_formatter.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
@@ -8,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../constants/color_constants.dart';
+import '../../widgets/custom_cacheimage.dart';
 
 class BlogDetailView extends StatefulWidget {
   const BlogDetailView({super.key, required this.id});
@@ -20,68 +20,117 @@ class BlogDetailView extends StatefulWidget {
 class _BlogDetailViewState extends State<BlogDetailView> {
 
   final controller = Get.put(HomeController());
+  final ScrollController _scrollController = ScrollController();
+
+
 
   @override
   void initState() {
     super.initState();
     controller.getBlogById(widget.id);
+    _scrollController.addListener(() {
+      if(_scrollController.offset >= 190) {
+        controller.appbarOffset.value = Offset.zero;
+      } else {
+        controller.appbarOffset.value = const Offset(3,0);
+      }
+    });
     
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.appbarOffset.value = const Offset(10,0);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryClr,
-      appBar: AppBar(
-        backgroundColor: primaryClr,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: black,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Obx(() => controller.blogloading.isTrue
-          ? const LoadingGif()
-          : SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.sp).copyWith(bottom: 15.sp),
-                  child: Text(controller.blog.title.toString(), style: titleStyle,),
+      body: Obx(() => controller.blogloading.isTrue
+        ? const LoadingGif()
+        : CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverAppBar(
+              backgroundColor: primaryClr,
+              leading: IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: black,
                 ),
-                Center(child: SizedBox(height: 60.sp, child: Image.network(dummyImg1))),
-                ListTile(
-                  leading: CircleAvatar(
-                    radius: 18.sp,
-                    backgroundColor: greyblue,
-                    child: Center(
-                      child: Text(controller.blog.author!.toUpperCase().toString()[0], style: titleStyle.copyWith(color: blue),),
+              ),
+              expandedHeight: 55.sp,
+              pinned: true,
+              floating: false,
+              foregroundColor: primaryClr,
+              scrolledUnderElevation: 0.5,
+              title: Obx(() => 
+                AnimatedSlide(
+                  offset: controller.appbarOffset.value,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(controller.blog.title.toString(), style: titleStyle, overflow: TextOverflow.ellipsis,)
+                )
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  children: [
+                    CustomCachedNetworkImage(imageUrl: controller.blog.image.toString(), height: 60.sp, width:  double.infinity,),
+                    Container(
+                      height: 60.sp,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [white.withOpacity(0.5), transparent],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          stops: const [0.3,1]
+                        )
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ),
+            SliverToBoxAdapter( 
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.sp),
+                    child: Text(controller.blog.title.toString(), style: titleStyle,),
+                  ),
+                  ListTile(
+                    leading: CircleAvatar(
+                      radius: 18.sp,
+                      backgroundColor: greyblue,
+                      child: Center(
+                        child: Text(controller.blog.author!.toUpperCase().toString()[0], style: titleStyle.copyWith(color: blue),),
+                      ),
+                    ),
+                    title: Text(controller.blog.author.toString(), style: midTextStyle,),
+                    subtitle: Text(
+                      DateTimeFormatter.formatDate(controller.blog.createdAt.toString()),
+                      style: smallTextStyle.copyWith(fontWeight: FontWeight.w600,fontSize: 13.sp, color: greyblueDrkDrk),
                     ),
                   ),
-                  title: Text(controller.blog.author.toString(), style: midTextStyle,),
-                  subtitle: Text(
-                    DateTimeFormatter.formatDate(controller.blog.createdAt.toString()),
-                    style: smallTextStyle.copyWith(fontWeight: FontWeight.w600,fontSize: 13.sp, color: greyblueDrkDrk),
+                  SizedBox(
+                    height: 8.sp,
                   ),
-                ),
-                SizedBox(
-                  height: 8.sp,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18.sp).copyWith(bottom: 15.sp),
-                  child: Text(
-                    controller.blog.content.toString(),
-                    style: smallTextStyle,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 18.sp).copyWith(bottom: 15.sp),
+                    child: Text(
+                      controller.blog.content.toString(),
+                      style: smallTextStyle,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

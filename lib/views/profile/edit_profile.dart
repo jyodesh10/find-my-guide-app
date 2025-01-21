@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/widgets/custom_textfield.dart';
+import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../constants/color_constants.dart';
 import '../../constants/url_constants.dart';
 import '../../controllers/profile_controller.dart';
+import '../../utils/date_picker.dart';
+import '../../widgets/custom_cacheimage.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -20,6 +26,14 @@ class _EditProfileViewState extends State<EditProfileView> {
   final controller = Get.put(ProfileController());
 
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 1), (){
+      controller.getUserById();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryClr,
@@ -28,14 +42,17 @@ class _EditProfileViewState extends State<EditProfileView> {
         children: [
           Image.asset(backgroundImg, fit: BoxFit.cover,),
           SafeArea(
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 10.sp,
-                ),
-                profilePicSection(),
-                formSection()
-              ],
+            child: Obx(()=> controller.loading.isTrue
+              ? const LoadingGif()
+              : Column(
+                children: [
+                  SizedBox(
+                    height: 10.sp,
+                  ),
+                  profilePicSection(),
+                  formSection()
+                ],
+              )
             )
           ),
         ],
@@ -60,12 +77,24 @@ class _EditProfileViewState extends State<EditProfileView> {
           ],
         ),
         Center(
-          child: CircleAvatar(
-            radius: 30.sp,
-            backgroundImage: const NetworkImage(dummyImg,),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: Obx(()=> controller.profileImg.value !=""
+              ? Image.file(File(controller.profileImg.toString()), fit: BoxFit.cover, height: 42.sp, width: 42.sp,)
+              : CustomCachedNetworkImage(imageUrl: controller.user.image.toString(), fit: BoxFit.cover,height: 42.sp, width: 42.sp),
+          
+            ) 
           ),
         ),
-        TextButton(onPressed: (){}, child: Text("Upload new picture", style: smallTextStyle,)),
+        TextButton(
+          onPressed: ()async{
+            XFile? pickedimg = await ImagePicker().pickImage(source: ImageSource.gallery);
+            if(pickedimg != null){
+              controller.profileImg.value = pickedimg.path;
+            }
+          }, 
+          child: Text("Upload new picture", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),)
+        ),
       ],
     );
   }
@@ -89,6 +118,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         CustomTextfield(
           hintText: "phone",
           controller: controller.phone,
+          keyboardType: TextInputType.phone,
         ),
         Padding(
           padding: EdgeInsets.only(left: 18.sp, bottom: 10.sp),
@@ -96,7 +126,15 @@ class _EditProfileViewState extends State<EditProfileView> {
         ),
         CustomTextfield(
           hintText: "Dob",
+          suffixIcon: const Icon(Icons.calendar_month_outlined),
           controller: controller.dob,
+          readOnly: true,
+          onTap: () async {
+            String? pickeddate = await customDatePicker(context);
+            if(pickeddate!.isNotEmpty){
+              controller.dob.text = pickeddate.toString();
+            }
+          },
         ),
         Center(
           child: MaterialButton(
@@ -107,7 +145,6 @@ class _EditProfileViewState extends State<EditProfileView> {
             child: Text("Update", style: midTextStyle.copyWith(color: white, fontWeight: FontWeight.bold),),
             onPressed: () {
               controller.updateUserById();
-
             }
           ),
         ),

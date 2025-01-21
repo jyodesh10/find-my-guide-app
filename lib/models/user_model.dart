@@ -5,6 +5,8 @@ class UserModel {
     String? username;
     String? email;
     String? image;
+    DateTime? dob;
+    int? mobileNo;
     DateTime? createdAt;
     DateTime? updatedAt;
     int? v;
@@ -14,6 +16,8 @@ class UserModel {
         this.username,
         this.email,
         this.image,
+        this.dob,
+        this.mobileNo,
         this.createdAt,
         this.updatedAt,
         this.v,
@@ -28,6 +32,8 @@ class UserModel {
         username: json["username"],
         email: json["email"],
         image: json["image"],
+        dob: json["dob"]== null ? null : DateTime.parse(json["dob"]),
+        mobileNo: json["mobile_no"],
         createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
         updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
         v: json["__v"],
@@ -38,6 +44,8 @@ class UserModel {
         "username": username,
         "email": email,
         "image": image,
+        "dob": dob?.toIso8601String(),
+        "mobile_no": mobileNo,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,

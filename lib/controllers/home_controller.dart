@@ -16,6 +16,7 @@ class HomeController extends GetxController{
 
   var toursList = <ToursModel>[].obs;
   var guidesList = <GuidesModel>[].obs;
+  var blogsHomeList = <BlogData>[].obs;
   var blogsList = <BlogData>[].obs;
 
   var loading = false.obs;
@@ -28,9 +29,18 @@ class HomeController extends GetxController{
 
 
   fetchall() async {
+    clearAll();
     await getToursRequest();
     await getGuidesRequest();
     await getBlogsRequest();
+  }
+
+  clearAll() {
+    initialPage.value = 1;
+    toursList.clear();
+    blogsHomeList.clear();
+    guidesList.clear();
+    blogsList.clear();
   }
 
   Future getToursRequest() async {
@@ -65,19 +75,39 @@ class HomeController extends GetxController{
   }
 
 
-  Future getBlogsRequest() async {
+  Future getBlogsRequest({limit, page}) async {
     loading(true);
     var data = await handleRequest(
       method: "get", 
-      url: "${baseUrl}api/blog/?limit=5&page=1", 
+      url: "${baseUrl}api/blog/?limit=${limit??8}&page=1", 
       headers: {
         "Content-Type":"application/json",
         "Authorization": "Bearer ${SharedPref.read("accessToken")}"
       },
     ).whenComplete(() => loading(false));
     List listdata = data['data'];
-    blogsList.value = listdata.map((e) => BlogData.fromMap(e)).toList();
+    blogsHomeList.value = listdata.map((e) => BlogData.fromMap(e)).toList();
+  }
 
+  var paginationloading = false.obs;
+  Future getBlogsLoadMore({page}) async {
+    initialPage.value++;
+    paginationloading(true);
+    var data = await handleRequest(
+      method: "get", 
+      url: "${baseUrl}api/blog/?limit=8&page=${initialPage.value}", 
+      headers: {
+        "Content-Type":"application/json",
+        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
+      },
+    );
+    List listdata = data['data'];
+    List moreblogsList = listdata.map((e) => BlogData.fromMap(e)).toList();
+    for (var i = 0; i < moreblogsList.length; i++) {
+      blogsList.add(moreblogsList[i]);
+    }
+    blogsList.toSet();
+    paginationloading(false);
   }
 
   late BlogData blog;
@@ -95,4 +125,11 @@ class HomeController extends GetxController{
     blog = BlogData.fromMap(data);
   }
 
+
+  //bloglist
+  var initialPage = 1.obs;
+
+  //blog details
+  var isAppbarvisible = false.obs;
+  var appbarOffset = const Offset(10, 0).obs;
 }

@@ -5,14 +5,17 @@ import '../constants/color_constants.dart';
 import '../constants/font_constants.dart';
 
 class CustomTextfield extends StatefulWidget {
-  const CustomTextfield({super.key, required this.hintText, this.prefixIcon, this.controller, this.margin, this.validator});
+  const CustomTextfield({super.key, required this.hintText, this.suffixIcon, this.controller, this.margin, this.validator, this.keyboardType, this.enabled, this.readOnly, this.onTap});
 
   final String hintText;
-  final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final TextEditingController? controller;
   final EdgeInsetsGeometry? margin;
   final FormFieldValidator? validator;
-
+  final TextInputType? keyboardType;
+  final bool? enabled;
+  final bool? readOnly;
+  final void Function()? onTap;
   @override
   State<CustomTextfield> createState() => _CustomTextfieldState();
 }
@@ -40,10 +43,14 @@ class _CustomTextfieldState extends State<CustomTextfield> {
         cursorHeight: 20  .sp,
         autofocus: false,
         controller: widget.controller,
+        keyboardType: widget.keyboardType,
+        enabled: widget.enabled,
+        readOnly: widget.readOnly ?? false,
+        onTap: widget.onTap,
         decoration: InputDecoration(
           filled: true,
           fillColor: white,
-          // prefixIcon: widget.prefixIcon ?? const SizedBox(),
+          suffixIcon: widget.suffixIcon ?? const SizedBox(),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18.sp),
             borderSide: BorderSide.none,
