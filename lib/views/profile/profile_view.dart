@@ -1,6 +1,7 @@
 import 'package:findmyguide/constants/color_constants.dart';
 import 'package:findmyguide/controllers/profile_controller.dart';
 import 'package:findmyguide/views/profile/edit_profile.dart';
+import 'package:findmyguide/widgets/custom_cacheimage.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,9 +40,9 @@ class _ProfileViewState extends State<ProfileView> {
                   child: CircleAvatar(
                     radius: 35.sp,
                     backgroundColor: greyblueDrk,
-                    child: CircleAvatar(
-                      radius: 33.sp,
-                      backgroundImage: const NetworkImage(dummyImg,),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: CustomCachedNetworkImage(imageUrl: controller.user.image.toString(),),
                     ),
                   ),
                 ),

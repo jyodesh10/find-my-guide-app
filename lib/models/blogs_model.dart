@@ -33,6 +33,7 @@ class BlogData {
     String? title;
     String? content;
     String? author;
+    String? image;
     DateTime? createdAt;
     DateTime? updatedAt;
     int? v;
@@ -42,6 +43,7 @@ class BlogData {
         this.title,
         this.content,
         this.author,
+        this.image,
         this.createdAt,
         this.updatedAt,
         this.v,
@@ -56,6 +58,7 @@ class BlogData {
         title: json["title"],
         content: json["content"],
         author: json["author"],
+        image: json["image"],
         createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
         updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
         v: json["__v"],
@@ -66,6 +69,7 @@ class BlogData {
         "title": title,
         "content": content,
         "author": author,
+        "image": image,
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,

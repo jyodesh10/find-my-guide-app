@@ -3,6 +3,7 @@ import 'package:findmyguide/constants/color_constants.dart';
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/views/home/blog_detail_view.dart';
+import 'package:findmyguide/views/home/bloglist_view.dart';
 import 'package:findmyguide/views/home/guide_detail_view.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
@@ -29,27 +30,36 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       backgroundColor: primaryClr,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              topSection(),
-              searchSection(),
-              Obx(() => controller.loading.isTrue
-                ? const Center(child: LoadingGif())
-                : Column(
-                    children: [
-                      locationsSection(),
-                      toursSection(),
-                      blogsSection(),
-                      guideSection(),
-                    ],
-                  )
-              ),
-              SizedBox(
-                height: 50.sp,
-              )
-            ],
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await Future.delayed(const Duration(milliseconds: 200), () async {
+              await controller.fetchall();
+            });
+          },
+          color: blue,
+          backgroundColor: white,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                topSection(),
+                searchSection(),
+                Obx(() => controller.loading.isTrue
+                  ? const Center(child: LoadingGif())
+                  : Column(
+                      children: [
+                        // locationsSection(),
+                        toursSection(),
+                        blogsSection(),
+                        guideSection(),
+                      ],
+                    )
+                ),
+                SizedBox(
+                  height: 50.sp,
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -179,7 +189,7 @@ class _HomeViewState extends State<HomeView> {
         Padding(
           padding: EdgeInsets.only(left: 20.sp),
           child: Text(
-            "Available Tours",
+            "Tours",
             style: titleStyle,
           ),
         ),
@@ -285,7 +295,16 @@ class _HomeViewState extends State<HomeView> {
               style: titleStyle,
             ),
             TextButton(
-              onPressed: () {}, 
+              onPressed: () {
+                controller.initialPage.value = 1;
+                controller.blogsList.clear();
+                for (var i = 0; i < controller.blogsHomeList.length; i++) {
+                  if(!controller.blogsList.map((f) => f.id).toList().contains(controller.blogsHomeList[i].id)) {
+                    controller.blogsList.add(controller.blogsHomeList[i]);
+                  }
+                }
+                Get.to(() => const BloglistView(), transition: Transition.rightToLeft); 
+              }, 
               child: Text("View all", style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),)
             )
           ],
@@ -294,14 +313,14 @@ class _HomeViewState extends State<HomeView> {
       SizedBox(
         height: 75.sp,
         child: ListView.separated(
-          itemCount: controller.blogsList.length,
+          itemCount: controller.blogsHomeList.length,
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(horizontal: 18.sp),
           itemBuilder: (context, index) {
             return InkWell(
               borderRadius: BorderRadius.circular(16),
-              onTap: () => Get.to(() => BlogDetailView(id: controller.blogsList[index].id.toString(),),
+              onTap: () => Get.to(() => BlogDetailView(id: controller.blogsHomeList[index].id.toString(),),
                   transition: Transition.fade),
               child: Card(
                 color: white,
@@ -316,10 +335,18 @@ class _HomeViewState extends State<HomeView> {
                       decoration: const BoxDecoration(
                         color: greyblue,
                         borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16)),
-                        image: DecorationImage(
-                            image: NetworkImage(dummyImg1), fit: BoxFit.cover)),
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16)
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius:  const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16)
+                        ),
+                        child: CustomCachedNetworkImage(imageUrl: controller.blogsHomeList[index].image.toString()),
+                      ),
+
                     ),
                     Container(
                       height: 54.sp,
@@ -334,7 +361,7 @@ class _HomeViewState extends State<HomeView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            controller.blogsList[index].title.toString(),
+                            controller.blogsHomeList[index].title.toString(),
                             style: midTextStyle.copyWith(
                                 fontWeight: FontWeight.w600),
                             maxLines: 2,
@@ -344,7 +371,7 @@ class _HomeViewState extends State<HomeView> {
                             height: 8.sp,
                           ),
                           Text(
-                            DateTimeFormatter.formatDate(controller.blogsList[index].createdAt.toString()),
+                            DateTimeFormatter.formatDate(controller.blogsHomeList[index].createdAt.toString()),
                             style: smallTextStyle.copyWith(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13.sp,
@@ -356,7 +383,7 @@ class _HomeViewState extends State<HomeView> {
                             height: 8.sp,
                           ),
                           Text(
-                            controller.blogsList[index].content.toString(),
+                            controller.blogsHomeList[index].content.toString(),
                             style: smallTextStyle,
                             maxLines: 4,
                             overflow: TextOverflow.ellipsis,
@@ -418,8 +445,10 @@ class _HomeViewState extends State<HomeView> {
                           borderRadius: BorderRadius.circular(15.sp),
                           border: Border.all(color: white, width: 6),
                         ),
-                        child: CustomCachedNetworkImage(imageUrl: "$baseUrl${controller.guidesList[index].image}"),
-
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12.sp),
+                          child: CustomCachedNetworkImage(imageUrl: "${controller.guidesList[index].image}")
+                        ),
                       ),
                       Positioned(
                         right: 0,
