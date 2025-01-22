@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:findmyguide/constants/color_constants.dart';
 import 'package:http/http.dart' as http;
+
+import 'dialog_boxes.dart';
 
 Future handleRequest(
     {required String method,
@@ -43,14 +44,15 @@ Future handleRequest(
       if (response.body.isNotEmpty) {
         Map<String, dynamic> errorData = jsonDecode(response.body);
         if (errorData.containsKey('message')) {
-          Get.back();
-          Get.showSnackbar(GetSnackBar(
-            message:errorData['message'],
-            animationDuration: const Duration(milliseconds: 340),
-            duration: const Duration(seconds: 1),
-            margin: const EdgeInsets.all(20),
-            borderRadius: 12,            
-          ));
+          // Get.back();
+          customsnackBar(message: errorData['message'], backgroundColor: red.withOpacity(0.1));
+          // Get.showSnackbar(GetSnackBar(
+          //   message:errorData['message'],
+          //   animationDuration: const Duration(milliseconds: 340),
+          //   duration: const Duration(seconds: 1),
+          //   margin: const EdgeInsets.all(20),
+          //   borderRadius: 12,            
+          // ));
           throw Exception('API Error: ${errorData['message']}');
         }
       }

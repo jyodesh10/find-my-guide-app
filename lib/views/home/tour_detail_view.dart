@@ -1,106 +1,129 @@
 import 'package:findmyguide/constants/font_constants.dart';
-import 'package:findmyguide/constants/url_constants.dart';
+import 'package:findmyguide/controllers/home_controller.dart';
+import 'package:findmyguide/controllers/wishlist_controller.dart';
+import 'package:findmyguide/widgets/custom_cacheimage.dart';
+import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../constants/color_constants.dart';
+import '../../models/tours_model.dart';
 import '../../widgets/review_card.dart';
 
 class TourDetailView extends StatefulWidget {
-  const TourDetailView({super.key});
+  const TourDetailView({super.key, required this.id});
+  final String id;
 
   @override
   State<TourDetailView> createState() => _TourDetailViewState();
 }
 
 class _TourDetailViewState extends State<TourDetailView> {
+
+  final controller = Get.put(HomeController());
+  final wishlistcontroller = Get.put(WishlistController());
+  CarouselController? carouselController;
+  @override
+  void initState() {
+    super.initState();
+    controller.getTourById(widget.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryClr,
+      appBar: AppBar(
+        backgroundColor: primaryClr,
+        scrolledUnderElevation: 0.5,
+        actions: [
+          Obx(() => wishlistcontroller.loading.isTrue || controller.tourloading.isTrue
+            ? const SizedBox()
+            : IconButton(
+              onPressed: () {
+                wishlistcontroller.addToWishlist(controller.tour.id.toString());
+              },
+              icon: Icon(
+                wishlistcontroller.wishlistdata.wishlist!.map((e)=> e.tour!.id.toString()).toList().contains(controller.tour.id.toString())
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_outline_rounded,
+                color: pink,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.share_rounded,
+              color: black,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 10.sp,
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Get.back(),
-                    icon: const Icon(
-                      Icons.arrow_back_rounded,
-                      color: black,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.favorite_outline_rounded,
-                      color: pink,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.share_rounded,
-                      color: black,
-                    ),
-                  ),
-                ],
-              ),
-              titleImgSection(),
-              SizedBox(
-                height: 5.sp,
-              ),
-              highlightSection(),
-              SizedBox(
-                height: 15.sp,
-              ),
-              descriptionSection(),
-              reviewSection()
-            ],
+          child: Obx(() => controller.tourloading.isTrue
+            ? const LoadingGif()
+            : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 10.sp,
+                ),
+                titleImgSection(),
+                SizedBox(
+                  height: 5.sp,
+                ),
+                highlightSection(),
+                SizedBox(
+                  height: 15.sp,
+                ),
+                descriptionSection(),
+                reviewSection()
+              ],
+            ),
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 35.sp,
-        color: white,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 18.sp,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Price",
-                  style: midTextStyle,
-                ),
-                Text(
-                  "450\$ / person",
-                  style: titleStyle,
-                )
-              ],
-            ),
-            const Spacer(),
-            MaterialButton(
-              color: blue,
-              height: 28.sp,
-              minWidth: 38.w,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
-              child: Text("Book Now", style: midTextStyle.copyWith(color: white),),
-              onPressed: () {}),
-            SizedBox(
-              width: 18.sp,
-            ),
-          ],
+      bottomNavigationBar: Obx(() => controller.tourloading.isTrue
+        ? const LinearProgressIndicator(color: blue,)
+        :
+        Container(
+          height: 35.sp,
+          color: white,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 18.sp,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Price",
+                    style: midTextStyle,
+                  ),
+                  Text(
+                    controller.tour.price.toString(),
+                    style: titleStyle,
+                  )
+                ],
+              ),
+              const Spacer(),
+              MaterialButton(
+                color: blue,
+                height: 28.sp,
+                minWidth: 38.w,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
+                child: Text("Book Now", style: midTextStyle.copyWith(color: white),),
+                onPressed: () {}),
+              SizedBox(
+                width: 18.sp,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -110,27 +133,35 @@ class _TourDetailViewState extends State<TourDetailView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.sp).copyWith(bottom: 15.sp),
-          child: Text(
-            "3 hour Thamel market & temples excursion",
-            style: titleStyle,
-          ),
-        ),
         Center(
           child: SizedBox(
             height: 60.sp,
-            width: 90.w,
-            child: Image.network(
-              dummyImg,
-              fit: BoxFit.cover,
+            // width: 90.w,
+            child: CarouselView(
+              shrinkExtent: 1.w,
+              itemExtent: 80.w,
+              controller: carouselController,
+              elevation: 5,
+              padding: EdgeInsets.only(left: 15.sp),
+              itemSnapping: true,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              children: List.generate(controller.tour.image!.length, (index) {
+                return CustomCachedNetworkImage(imageUrl: controller.tour.image![index].toString());
+              })
             )
           )
         ),
         Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15.sp).copyWith(top: 15.sp),
+          child: Text(
+            controller.tour.title.toString(),
+            style: titleStyle,
+          ),
+        ),
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 8.sp),
           child: Text(
-            "Guided by: Ghanshyam",
+            "Hosted by: Ghanshyam",
             style: subtitleStyle,
           ),
         ),
@@ -162,28 +193,28 @@ class _TourDetailViewState extends State<TourDetailView> {
                     size: 19.sp,
                     color: black,
                   ),
-                  content: "Kathmandu, Nepal"),
+                  content: "${controller.tour.highlights?.location?.city}, ${controller.tour.highlights?.location?.country}"),
               highlightsTile(
                   icon: Icon(
                     Icons.access_time_filled_rounded,
                     size: 19.sp,
                     color: black,
                   ),
-                  content: "8 Hours"),
+                  content: controller.tour.highlights!.duration.toString()),
               highlightsTile(
                   icon: Icon(
                     Icons.language,
                     size: 19.sp,
                     color: black,
                   ),
-                  content: "English"),
+                  content: controller.tour.highlights!.languages.toString().replaceAll("[", "").replaceAll("]", "")),
               highlightsTile(
                   icon: Icon(
                     Icons.info_rounded,
                     size: 19.sp,
                     color: black,
                   ),
-                  content: "History, Culture, Food"),
+                  content: controller.tour.highlights!.specializations.toString().replaceAll("[", "").replaceAll("]", "")),
             ],
           ),
         ),
@@ -236,7 +267,7 @@ class _TourDetailViewState extends State<TourDetailView> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.sp),
           child: Text(
-            """Explore the daily life of the local people of Kathmandu as you walk through the old roads of Thamel. The streets have lived through the decades and are the most popular tourist destination in Kathmandu. The tour starts from the famous Thamel area through all the famous old parts of Kathmandu.""",
+            controller.tour.description.toString(),
             style: subtitleStyle,
           ),
         ),
@@ -254,11 +285,16 @@ class _TourDetailViewState extends State<TourDetailView> {
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.sp),
-          child: const Column(
-            children: [
-              ReviewCard(),
-              ReviewCard(),
-            ],
+          child: Column(
+            children: List.generate(controller.tour.reviews!.length, (index) {
+              Review review = controller.tour.reviews![index];
+              return ReviewCard(
+                comment: review.comment.toString(),
+                name: review.user!.username.toString(),
+                image: review.user!.image.toString(),
+                rating: review.rating.toString(),
+              );
+            }) 
           ),
         )
       ],
