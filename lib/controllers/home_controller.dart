@@ -10,6 +10,7 @@ import 'package:findmyguide/utils/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+
 class HomeController extends GetxController{
   TextEditingController emailcon = TextEditingController();
   TextEditingController passwordcon = TextEditingController();
@@ -54,7 +55,7 @@ class HomeController extends GetxController{
       },
     ).whenComplete(() => loading(false));
     
-    toursList.value = data.map((e) => ToursModel.fromJson(e)).toList();
+    toursList.value = data.map((e) => ToursModel.fromMap(e)).toList();
 
   }
 
@@ -124,6 +125,39 @@ class HomeController extends GetxController{
     ).whenComplete(() => blogloading(false));
     blog = BlogData.fromMap(data);
   }
+
+  late ToursModel tour;
+  var tourloading = false.obs;
+  Future getTourById(id) async {
+    tourloading(true);
+    var data = await handleRequest(
+      method: "get", 
+      url: "${baseUrl}api/tours/$id", 
+      headers: {
+        "Content-Type":"application/json",
+        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
+      },
+    ).whenComplete(() => tourloading(false));
+    tour = ToursModel.fromMap(data);
+  }
+
+
+  late GuidesModel guide;
+  var guideloading = false.obs;
+  Future getGuideById(id) async {
+    guideloading(true);
+    var data = await handleRequest(
+      method: "get", 
+      url: "${baseUrl}api/guides/$id", 
+      headers: {
+        "Content-Type":"application/json",
+        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
+      },
+    ).whenComplete(() => guideloading(false));
+    guide = GuidesModel.fromMap(data);
+  }
+
+
 
 
   //bloglist

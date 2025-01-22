@@ -29,7 +29,7 @@ class _BloglistViewState extends State<BloglistView> {
     super.initState();
     _scrollController.addListener(() {
       debugPrint(_scrollController.offset.toString());
-      if(_scrollController.offset >= (_scrollController.position.maxScrollExtent - 40)) {
+      if(_scrollController.offset >= (_scrollController.position.maxScrollExtent)) {
         debugPrint("This is th end");
         controller.getBlogsLoadMore(page: controller.initialPage.value);
       }
