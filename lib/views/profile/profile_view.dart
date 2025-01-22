@@ -42,7 +42,7 @@ class _ProfileViewState extends State<ProfileView> {
                     backgroundColor: greyblueDrk,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: CustomCachedNetworkImage(imageUrl: controller.user.image.toString(),),
+                      child: CustomCachedNetworkImage(imageUrl: controller.user.image.toString(), height: 46.5.sp, width: 46.5.sp),
                     ),
                   ),
                 ),

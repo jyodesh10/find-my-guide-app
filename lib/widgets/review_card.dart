@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_rating_bar/custom_rating_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -6,7 +7,11 @@ import '../constants/color_constants.dart';
 import '../constants/font_constants.dart';
 
 class ReviewCard extends StatefulWidget {
-  const ReviewCard({super.key});
+  const ReviewCard({super.key, required this.image, required this.name, required this.rating, required this.comment});
+  final String image;
+  final String name;
+  final String  rating;
+  final String comment;
 
   @override
   State<ReviewCard> createState() => _ReviewCardState();
@@ -26,11 +31,14 @@ class _ReviewCardState extends State<ReviewCard> {
           children: [
             Row(
               children: [
-                CircleAvatar(radius: 15.sp,),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: CachedNetworkImage(imageUrl: widget.image, height: 20.sp, width: 20.sp, fit: BoxFit.cover),  
+                ),
                 SizedBox(
                   width: 12.sp,
                 ),
-                Text("Jyodesh", style: midTextStyle,),
+                Text(widget.name, style: subtitleStyle.copyWith(fontWeight: FontWeight.w600),),
               ],
             ),
             SizedBox(
@@ -46,13 +54,13 @@ class _ReviewCardState extends State<ReviewCard> {
               filledIcon: Icons.star_rounded, 
               emptyIcon: Icons.star_border_rounded,
               size: 18.sp,
-              initialRating: 4,
+              initialRating: double.parse(widget.rating),
               maxRating: 5,
             ),
             SizedBox(
               height: 8.sp,
             ),
-            Text("Susan is a great guide. She is extremely knowable abut the history, culture and religion on Nepal. If I ever return I would definitely use her services again. Namaste", style: smallTextStyle, maxLines: 2, overflow: TextOverflow.ellipsis,),
+            Text(widget.comment, style: smallTextStyle, maxLines: 2, overflow: TextOverflow.ellipsis,),
           ],
         ),
       ),

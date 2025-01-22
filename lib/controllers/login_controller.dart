@@ -43,7 +43,7 @@ class LoginController extends GetxController{
     SharedPref.write("id", data['id']);
     SharedPref.write("email", emailcon.text);
     SharedPref.write("password", passwordcon.text);
-    Get.off(() => const NavBar());
+    Get.offAll(() => const NavBar());
   }
 
 }

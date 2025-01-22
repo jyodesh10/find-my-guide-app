@@ -7,16 +7,18 @@ import 'package:get/get.dart';
 
 import '../constants/color_constants.dart';
 
-customAppbar({String? title}) {
+customAppbar({String? title, bool? hasLeading = true}) {
   return AppBar(
     backgroundColor: primaryClr,
-    leading: IconButton(
+    leading: hasLeading == true 
+    ? IconButton(
       onPressed: () => Get.back(),
       icon: const Icon(
         Icons.arrow_back_rounded,
         color: black,
       ),
-    ),
+    )
+    : null,
     title: Text(title!, style: titleStyle),
   );
 }

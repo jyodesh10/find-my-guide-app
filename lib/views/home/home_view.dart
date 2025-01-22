@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../constants/url_constants.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/custom_cacheimage.dart';
 import 'tour_detail_view.dart';
@@ -207,7 +206,7 @@ class _HomeViewState extends State<HomeView> {
               return InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
-                  Get.to(() => const TourDetailView(),
+                  Get.to(() => TourDetailView(id:controller.toursList[index].id.toString() ,),
                       transition: Transition.fade);
                 },
                 child: Column(
@@ -216,7 +215,7 @@ class _HomeViewState extends State<HomeView> {
                       color: transparent,
                       elevation: 10,
                       shadowColor: black.withOpacity(0.2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: Stack(
                         children: [
                           Container(
@@ -224,12 +223,13 @@ class _HomeViewState extends State<HomeView> {
                             width: 60.w,
                             margin: EdgeInsets.only(bottom: 10.sp),
                             decoration: BoxDecoration(
-                                color: greyblue,
-                                borderRadius: BorderRadius.circular(16),
-                                image: DecorationImage(
-                                    image: NetworkImage(
-                                        index == 0 ? dummyImg2 : dummyImg),
-                                    fit: BoxFit.cover)),
+                              color: greyblue,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CustomCachedNetworkImage(imageUrl: controller.toursList[index].image!.first.toString(), height: 52.sp, width: 60.w,),
+                            ),
                           ),
                           Container(
                             margin: EdgeInsets.only(top: 12.sp, left: 12.sp),
@@ -319,14 +319,14 @@ class _HomeViewState extends State<HomeView> {
           padding: EdgeInsets.symmetric(horizontal: 18.sp),
           itemBuilder: (context, index) {
             return InkWell(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               onTap: () => Get.to(() => BlogDetailView(id: controller.blogsHomeList[index].id.toString(),),
                   transition: Transition.fade),
               child: Card(
                 color: white,
                 elevation: 10,
                 shadowColor: black.withOpacity(0.2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Column(
                   children: [
                     Container(
@@ -335,14 +335,14 @@ class _HomeViewState extends State<HomeView> {
                       decoration: const BoxDecoration(
                         color: greyblue,
                         borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16)
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12)
                         ),
                       ),
                       child: ClipRRect(
                         borderRadius:  const BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16)
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12)
                         ),
                         child: CustomCachedNetworkImage(imageUrl: controller.blogsHomeList[index].image.toString()),
                       ),
@@ -354,8 +354,8 @@ class _HomeViewState extends State<HomeView> {
                       decoration: const BoxDecoration(
                           color: white,
                           borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16))),
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12))),
                       padding: EdgeInsets.all(12.sp),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,15 +421,16 @@ class _HomeViewState extends State<HomeView> {
         SizedBox(
           height: 12.sp,
         ),
-        ListView.builder(
+        ListView.separated(
           itemCount: controller.guidesList.length,
           shrinkWrap: true,
+          padding: EdgeInsets.symmetric(horizontal: 16.sp),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             return InkWell(
               borderRadius: BorderRadius.circular(15.sp),
               onTap: () {
-                Get.to(() => const GuideDetailView(),
+                Get.to(() => GuideDetailView(id: controller.guidesList[index].id.toString(),),
                     transition: Transition.fade);
               },
               child: Row(
@@ -440,10 +441,16 @@ class _HomeViewState extends State<HomeView> {
                       Container(
                         height: 52.sp,
                         width: 45.sp,
-                        margin: EdgeInsets.only(left: 16.sp),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15.sp),
                           border: Border.all(color: white, width: 6),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 10,
+                              spreadRadius: 5,
+                              color: black.withOpacity(0.08)
+                            )
+                          ],
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12.sp),
@@ -512,6 +519,7 @@ class _HomeViewState extends State<HomeView> {
               ),
             );
           },
+          separatorBuilder: (context, index) => SizedBox(height: 12.sp,),
         )
       ],
     );

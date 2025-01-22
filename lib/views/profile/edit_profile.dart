@@ -80,8 +80,8 @@ class _EditProfileViewState extends State<EditProfileView> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(100),
             child: Obx(()=> controller.profileImg.value !=""
-              ? Image.file(File(controller.profileImg.toString()), fit: BoxFit.cover, height: 42.sp, width: 42.sp,)
-              : CustomCachedNetworkImage(imageUrl: controller.user.image.toString(), fit: BoxFit.cover,height: 42.sp, width: 42.sp),
+              ? Image.file(File(controller.profileImg.toString()), fit: BoxFit.cover, height: 45.sp, width: 45.sp,)
+              : CustomCachedNetworkImage(imageUrl: controller.user.image.toString(), fit: BoxFit.cover,height: 45.sp, width: 45.sp),
           
             ) 
           ),

@@ -10,7 +10,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 TextStyle titleStyle = GoogleFonts.manrope(
     fontSize: 17.sp, color: black, fontWeight: FontWeight.bold);
 TextStyle midTextStyle = GoogleFonts.manrope(
-    fontSize: 15.sp, color: black, fontWeight: FontWeight.w400);
+    fontSize: 15.sp, color: black, fontWeight: FontWeight.w500);
 TextStyle smallTextStyle = GoogleFonts.manrope(
     fontSize: 13.7.sp, color: black, fontWeight: FontWeight.w400);
 TextStyle subtitleStyle = GoogleFonts.manrope(

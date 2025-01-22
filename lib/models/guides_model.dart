@@ -7,8 +7,8 @@ class GuidesModel {
     String? email;
     String? password;
     Location? location;
-    List<String>? languages;
-    List<String>? specializations;
+    List<dynamic>? languages;
+    List<dynamic>? specializations;
     int? rating;
     bool? isVerified;
     List<dynamic>? documents;
@@ -23,7 +23,8 @@ class GuidesModel {
     DateTime? dob;
     String? image;
     String? price;
-    List<String>? reviews;
+    String? phone;
+    List<Review>? reviews;
 
     GuidesModel({
         this.id,
@@ -48,6 +49,7 @@ class GuidesModel {
         this.dob,
         this.image,
         this.price,
+        this.phone,
         this.reviews,
     });
 
@@ -62,8 +64,8 @@ class GuidesModel {
         email: json["email"],
         password: json["password"],
         location: json["location"] == null ? null : Location.fromMap(json["location"]),
-        languages: json["languages"] == null ? [] : List<String>.from(json["languages"]!.map((x) => x)),
-        specializations: json["specializations"] == null ? [] : List<String>.from(json["specializations"]!.map((x) => x)),
+        languages: json["languages"] == null ? [] : List<dynamic>.from(json["languages"]!.map((x) => x)),
+        specializations: json["specializations"] == null ? [] : List<dynamic>.from(json["specializations"]!.map((x) => x)),
         rating: json["rating"],
         isVerified: json["isVerified"],
         documents: json["documents"] == null ? [] : List<dynamic>.from(json["documents"]!.map((x) => x)),
@@ -78,7 +80,8 @@ class GuidesModel {
         dob: json["dob"] == null ? null : DateTime.parse(json["dob"]),
         image: json["image"],
         price: json["price"],
-        reviews: json["reviews"] == null ? [] : List<String>.from(json["reviews"]!.map((x) => x)),
+        phone: json["phone"],
+        reviews: json["reviews"] == null ? [] : List<Review>.from(json["reviews"]!.map((x) => Review.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
@@ -104,7 +107,8 @@ class GuidesModel {
         "dob": dob?.toIso8601String(),
         "image": image,
         "price": price,
-        "reviews": reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x)),
+        "phone": phone,
+        "reviews": reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x.toMap())),
     };
 }
 
@@ -133,5 +137,77 @@ class Location {
         "country": country,
         "region": region,
         "city": city,
+    };
+}
+
+class Review {
+    String? id;
+    User? user;
+    String? guide;
+    int? rating;
+    String? comment;
+    DateTime? createdAt;
+    int? v;
+
+    Review({
+        this.id,
+        this.user,
+        this.guide,
+        this.rating,
+        this.comment,
+        this.createdAt,
+        this.v,
+    });
+
+    factory Review.fromJson(String str) => Review.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Review.fromMap(Map<String, dynamic> json) => Review(
+        id: json["_id"],
+        user: json["user"] == null ? null : User.fromMap(json["user"]),
+        guide: json["guide"],
+        rating: json["rating"],
+        comment: json["comment"],
+        createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+        v: json["__v"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "_id": id,
+        "user": user?.toMap(),
+        "guide": guide,
+        "rating": rating,
+        "comment": comment,
+        "createdAt": createdAt?.toIso8601String(),
+        "__v": v,
+    };
+}
+
+class User {
+    String? id;
+    String? username;
+    String? image;
+
+    User({
+        this.id,
+        this.username,
+        this.image,
+    });
+
+    factory User.fromJson(String str) => User.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory User.fromMap(Map<String, dynamic> json) => User(
+        id: json["_id"],
+        username: json["username"],
+        image: json["image"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "_id": id,
+        "username": username,
+        "image": image,
     };
 }

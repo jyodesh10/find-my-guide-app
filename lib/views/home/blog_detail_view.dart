@@ -32,7 +32,7 @@ class _BlogDetailViewState extends State<BlogDetailView> {
       if(_scrollController.offset >= 190) {
         controller.appbarOffset.value = Offset.zero;
       } else {
-        controller.appbarOffset.value = const Offset(3,0);
+        controller.appbarOffset.value = const Offset(10,0);
       }
     });
     
@@ -57,9 +57,11 @@ class _BlogDetailViewState extends State<BlogDetailView> {
               backgroundColor: primaryClr,
               leading: IconButton(
                 onPressed: () => Get.back(),
-                icon: const Icon(
-                  Icons.arrow_back_rounded,
-                  color: black,
+                icon: Obx(() =>
+                  Icon(
+                    Icons.arrow_back_rounded,
+                    color: controller.appbarOffset.value == const  Offset(10,0) ? white : black,
+                  ),
                 ),
               ),
               expandedHeight: 55.sp,
@@ -83,10 +85,10 @@ class _BlogDetailViewState extends State<BlogDetailView> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [white.withOpacity(0.5), transparent],
-                          begin: Alignment.topCenter,
+                          colors: [black.withOpacity(0.5), white.withOpacity(0.02), transparent],
+                          begin: Alignment.topLeft,
                           end: Alignment.bottomCenter,
-                          stops: const [0.3,1]
+                          stops: const [0, 0.6, 1]
                         )
                       ),
                     ),
