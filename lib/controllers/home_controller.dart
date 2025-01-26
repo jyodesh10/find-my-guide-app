@@ -10,14 +10,16 @@ import 'package:findmyguide/utils/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../models/home_model.dart';
+
 
 class HomeController extends GetxController{
   TextEditingController emailcon = TextEditingController();
   TextEditingController passwordcon = TextEditingController();
 
-  var toursList = <ToursModel>[].obs;
-  var guidesList = <GuidesModel>[].obs;
-  var blogsHomeList = <BlogData>[].obs;
+  // var toursList = <ToursModel>[].obs;
+  // var guidesList = <GuidesModel>[].obs;
+  // var blogsHomeList = <BlogData>[].obs;
   var blogsList = <BlogData>[].obs;
 
   var loading = false.obs;
@@ -30,65 +32,33 @@ class HomeController extends GetxController{
 
 
   fetchall() async {
+    getHome();
     clearAll();
-    await getToursRequest();
-    await getGuidesRequest();
-    await getBlogsRequest();
   }
 
   clearAll() {
     initialPage.value = 1;
-    toursList.clear();
-    blogsHomeList.clear();
-    guidesList.clear();
+    // toursList.clear();
+    // blogsHomeList.clear();
+    // guidesList.clear();
     blogsList.clear();
   }
 
-  Future getToursRequest() async {
-    loading(true);
-    List data = await handleRequest(
-      method: "get", 
-      url: "${baseUrl}api/tours", 
-      headers: {
-        "Content-Type":"application/json",
-        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
-      },
-    ).whenComplete(() => loading(false));
-    
-    toursList.value = data.map((e) => ToursModel.fromMap(e)).toList();
-
-  }
-
-
-  Future getGuidesRequest() async {
-    loading(true);
-    List data = await handleRequest(
-      method: "get", 
-      url: "${baseUrl}api/guides", 
-      headers: {
-        "Content-Type":"application/json",
-        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
-      },
-    ).whenComplete(() => loading(false));
-    
-    guidesList.value = data.map((e) => GuidesModel.fromMap(e)).toList();
-
-  }
-
-
-  Future getBlogsRequest({limit, page}) async {
+  late HomeModel homedata;
+  Future getHome() async {
     loading(true);
     var data = await handleRequest(
       method: "get", 
-      url: "${baseUrl}api/blog/?limit=${limit??8}&page=1", 
+      url: "${baseUrl}api/home", 
       headers: {
         "Content-Type":"application/json",
         "Authorization": "Bearer ${SharedPref.read("accessToken")}"
       },
     ).whenComplete(() => loading(false));
-    List listdata = data['data'];
-    blogsHomeList.value = listdata.map((e) => BlogData.fromMap(e)).toList();
+    homedata = HomeModel.fromMap(data);
+    // List recommendedTours = data['recommended_tours'];
   }
+
 
   var paginationloading = false.obs;
   Future getBlogsLoadMore({page}) async {
