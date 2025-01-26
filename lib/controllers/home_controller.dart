@@ -56,13 +56,11 @@ class HomeController extends GetxController{
       },
     ).whenComplete(() => loading(false));
     homedata = HomeModel.fromMap(data);
-    // List recommendedTours = data['recommended_tours'];
   }
 
 
   var paginationloading = false.obs;
-  Future getBlogsLoadMore({page}) async {
-    initialPage.value++;
+  Future getBlogsLoadMore() async {
     paginationloading(true);
     var data = await handleRequest(
       method: "get", 
@@ -72,6 +70,7 @@ class HomeController extends GetxController{
         "Authorization": "Bearer ${SharedPref.read("accessToken")}"
       },
     );
+    initialPage.value++;
     List listdata = data['data'];
     List moreblogsList = listdata.map((e) => BlogData.fromMap(e)).toList();
     for (var i = 0; i < moreblogsList.length; i++) {

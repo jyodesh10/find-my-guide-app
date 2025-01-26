@@ -86,21 +86,22 @@ class ProfileController extends GetxController{
       customsnackBar(message: responsedData['message'].toString());
 
     }
-    // await handleRequest(
-    //   method: "put", 
-    //   url: "${baseUrl}api/users/678800991c25da6c9a9dfa7e", 
-    //   headers: {
-    //     "Content-Type":"application/json",
-    //     "Authorization": "Bearer ${SharedPref.read("accessToken")}"
-    //   },
-    //   body: body
-    // ).then((v) async {
-    //   await getUserById();
-    //   Get.back();
-    //   Get.back();
-    //   customsnackBar(message: "Successfully updated");
-    // });
     
+  }
+
+  Future changepassword(String password) async {
+    loadingDialog();
+    Map<String, String> body = {
+        "password": password
+    };
+
+    Map<String, String> headers = {
+        "Content-Type":"application/json",
+        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
+    };
+
+    await handleRequest(method: "put", url: "${baseUrl}api/users/${SharedPref.read('id')}", headers: headers, body: body);
+
   }
 
   Future logout() async {
