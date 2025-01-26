@@ -27,14 +27,21 @@ class _BloglistViewState extends State<BloglistView> {
   @override
   void initState() {
     super.initState();
-      controller.getBlogsLoadMore(page: 1);
+      controller.initialPage.value = 1;
+      controller.getBlogsLoadMore();
     _scrollController.addListener(() {
       debugPrint(_scrollController.offset.toString());
       if(_scrollController.offset >= (_scrollController.position.maxScrollExtent)) {
         debugPrint("This is th end");
-        controller.getBlogsLoadMore(page: controller.initialPage.value);
+        controller.getBlogsLoadMore();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.blogsList.clear();
   }
 
   @override

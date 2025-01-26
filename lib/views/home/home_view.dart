@@ -111,7 +111,9 @@ class _HomeViewState extends State<HomeView> {
                               width: 8.sp,
                             ),
                             Text(
-                              "Kathmandu, Nepal",
+                              profilecontroller.user.location?.city == "null" || profilecontroller.user.location?.country == "null"
+                               ? "${profilecontroller.user.location?.city}, ${profilecontroller.user.location?.country}"
+                               : "Add your location",
                               style: midTextStyle.copyWith(
                                   fontSize: 14.sp, color: greyblueDrkDrk),
                             ),
@@ -210,7 +212,7 @@ class _HomeViewState extends State<HomeView> {
         Padding(
           padding: EdgeInsets.only(left: 20.sp),
           child: Text(
-            "Tours",
+            "Recommended Tours",
             style: titleStyle,
           ),
         ),

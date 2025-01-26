@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class ToursModel {
     String? id;
-    String? guide;
+    Guide? guide;
     String? title;
     String? description;
     Highlights? highlights;
@@ -31,7 +31,7 @@ class ToursModel {
 
     factory ToursModel.fromMap(Map<String, dynamic> json) => ToursModel(
         id: json["_id"],
-        guide: json["guide"],
+        guide: json["guide"] == null ? null : Guide.fromMap(json["guide"]),
         title: json["title"],
         description: json["description"],
         highlights: json["highlights"] == null ? null : Highlights.fromMap(json["highlights"]),
@@ -44,7 +44,7 @@ class ToursModel {
 
     Map<String, dynamic> toMap() => {
         "_id": id,
-        "guide": guide,
+        "guide": guide?.toMap(),
         "title": title,
         "description": description,
         "highlights": highlights?.toMap(),
@@ -189,5 +189,33 @@ class User {
         "_id": id,
         "username": username,
         "image": image,
+    };
+}
+
+class Guide {
+    String? id;
+    String? firstname;
+    String? lastname;
+
+    Guide({
+        this.id,
+        this.firstname,
+        this.lastname,
+    });
+
+    factory Guide.fromJson(String str) => Guide.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Guide.fromMap(Map<String, dynamic> json) => Guide(
+        id: json["_id"],
+        firstname: json["firstname"],
+        lastname: json["lastname"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "_id": id,
+        "firstname": firstname,
+        "lastname": lastname,
     };
 }
