@@ -8,7 +8,10 @@ import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 import '../../constants/color_constants.dart';
+import '../../controllers/booking_controller.dart';
 import '../../models/tours_model.dart';
+import '../../utils/date_picker.dart';
+import '../../widgets/custom_textfield.dart';
 import '../../widgets/review_card.dart';
 
 class TourDetailView extends StatefulWidget {
@@ -23,6 +26,7 @@ class _TourDetailViewState extends State<TourDetailView> {
 
   final controller = Get.put(HomeController());
   final wishlistcontroller = Get.put(WishlistController());
+  final bookingcontroller = Get.put(BookingController());
   CarouselController? carouselController;
   @override
   void initState() {
@@ -118,7 +122,9 @@ class _TourDetailViewState extends State<TourDetailView> {
                 minWidth: 38.w,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
                 child: Text("Book Now", style: midTextStyle.copyWith(color: white),),
-                onPressed: () {}),
+                onPressed: () {
+                  confirmBookingBottomsheet(context);
+                }),
               SizedBox(
                 width: 18.sp,
               ),
@@ -298,6 +304,90 @@ class _TourDetailViewState extends State<TourDetailView> {
           ),
         )
       ],
+    );
+  }
+
+  
+  void confirmBookingBottomsheet(BuildContext context) {
+    TextEditingController participants = TextEditingController();
+    TextEditingController date = TextEditingController();
+    participants.text = "1"; 
+    showModalBottomSheet(
+      context: context, 
+      builder: (context) {
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            color: primaryClr
+          ),
+          child:Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 10.sp,
+              ),
+              Divider(
+                color: black.withOpacity(0.3),
+                height: 15.sp,
+                thickness: 3,
+                endIndent: 40.w,
+                indent: 40.w,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.sp,vertical: 10.sp),
+                child: Text("Prticipants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+              ),
+              CustomTextfield(
+                hintText: "0",
+                controller: participants,
+                keyboardType: TextInputType.number,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 10.sp),
+                child: Text("Book for (Date)", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+              ),
+              CustomTextfield(
+                hintText: "mm/dd/yy",
+                readOnly: true,
+                controller: date,
+                onTap: () async {
+                  String? pickeddate = await customDatePicker(context);
+                  if(pickeddate!.isNotEmpty){
+                    date.text = pickeddate.toString();
+                  }
+                },
+              ),
+              SizedBox(
+                height: 20.sp,
+              ),
+              Center(
+                child: MaterialButton(
+                  color: blue,
+                  height: 28.sp,
+                  minWidth: 38.w,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
+                  child: Text("Confirm", style: midTextStyle.copyWith(color: white),),
+                  onPressed: () async {
+                    Get.back();
+                    await bookingcontroller.addToBooking(controller.tour.id.toString(), date.text).whenComplete(() {
+                      participants.clear();
+                      date.clear();
+                    });
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 20.sp,
+              ),
+            ],
+          )
+        );
+      },
     );
   }
 
