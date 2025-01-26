@@ -1,9 +1,11 @@
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/controllers/wishlist_controller.dart';
+import 'package:findmyguide/views/home/guide_detail_view.dart';
 import 'package:findmyguide/widgets/custom_cacheimage.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -28,6 +30,9 @@ class _TourDetailViewState extends State<TourDetailView> {
   final wishlistcontroller = Get.put(WishlistController());
   final bookingcontroller = Get.put(BookingController());
   CarouselController? carouselController;
+
+  final GlobalKey _formKey = GlobalKey<FormState>(); 
+
   @override
   void initState() {
     super.initState();
@@ -164,11 +169,14 @@ class _TourDetailViewState extends State<TourDetailView> {
             style: titleStyle,
           ),
         ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 8.sp),
-          child: Text(
-            "Hosted by: Ghanshyam",
-            style: subtitleStyle,
+        GestureDetector(
+          onTap: () => Get.to(() => GuideDetailView(id: controller.tour.guide!.id.toString())),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 8.sp),
+            child: Text(
+              "Hosted by: ${controller.tour.guide!.firstname} ${controller.tour.guide!.lastname}",
+              style: subtitleStyle,
+            ),
           ),
         ),
       ],
@@ -250,7 +258,7 @@ class _TourDetailViewState extends State<TourDetailView> {
           Expanded(
               child: Text(
             content,
-            style: subtitleStyle.copyWith(height: 4.2.sp),
+            style: smallTextStyle.copyWith(height: 4.2.sp, fontWeight: FontWeight.bold),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ))
@@ -315,77 +323,87 @@ class _TourDetailViewState extends State<TourDetailView> {
     showModalBottomSheet(
       context: context, 
       builder: (context) {
-        return Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              color: primaryClr
             ),
-            color: primaryClr
+            child:Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 10.sp,
+                  ),
+                  Divider(
+                    color: black.withOpacity(0.3),
+                    height: 15.sp,
+                    thickness: 3,
+                    endIndent: 40.w,
+                    indent: 40.w,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.sp,vertical: 10.sp),
+                    child: Text("Prticipants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                  ),
+                  CustomTextfield(
+                    hintText: "0",
+                    controller: participants,
+                    keyboardType: TextInputType.number,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 10.sp),
+                    child: Text("Book for (Date)", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                  ),
+                  CustomTextfield(
+                    hintText: "mm/dd/yy",
+                    readOnly: true,
+                    controller: date,
+                    onTap: () async {
+                      String? pickeddate = await customDatePicker(context, lastDate: DateTime(DateTime.now().add(const Duration(days: 10000)).year));
+                      if(pickeddate!.isNotEmpty){
+                        date.text = pickeddate.toString();
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: 20.sp,
+                  ),
+                  Center(
+                    child: MaterialButton(
+                      color: blue,
+                      height: 28.sp,
+                      minWidth: 38.w,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
+                      child: Text("Confirm", style: midTextStyle.copyWith(color: white),),
+                      onPressed: () async {
+                        if(date.text.isNotEmpty) {
+                          Get.back();
+                          await bookingcontroller.addToBooking(controller.tour.id.toString(), date.text).whenComplete(() {
+                            participants.clear();
+                            date.clear();
+                          });
+                        } else {
+                          Fluttertoast.showToast(msg: "Date is required");
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.sp,
+                  ),
+                ],
+              ),
+            )
           ),
-          child:Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 10.sp,
-              ),
-              Divider(
-                color: black.withOpacity(0.3),
-                height: 15.sp,
-                thickness: 3,
-                endIndent: 40.w,
-                indent: 40.w,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.sp,vertical: 10.sp),
-                child: Text("Prticipants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
-              ),
-              CustomTextfield(
-                hintText: "0",
-                controller: participants,
-                keyboardType: TextInputType.number,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 10.sp),
-                child: Text("Book for (Date)", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
-              ),
-              CustomTextfield(
-                hintText: "mm/dd/yy",
-                readOnly: true,
-                controller: date,
-                onTap: () async {
-                  String? pickeddate = await customDatePicker(context);
-                  if(pickeddate!.isNotEmpty){
-                    date.text = pickeddate.toString();
-                  }
-                },
-              ),
-              SizedBox(
-                height: 20.sp,
-              ),
-              Center(
-                child: MaterialButton(
-                  color: blue,
-                  height: 28.sp,
-                  minWidth: 38.w,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
-                  child: Text("Confirm", style: midTextStyle.copyWith(color: white),),
-                  onPressed: () async {
-                    Get.back();
-                    await bookingcontroller.addToBooking(controller.tour.id.toString(), date.text).whenComplete(() {
-                      participants.clear();
-                      date.clear();
-                    });
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 20.sp,
-              ),
-            ],
-          )
         );
       },
     );
