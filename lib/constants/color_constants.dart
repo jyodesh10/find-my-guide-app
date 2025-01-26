@@ -11,6 +11,7 @@ const torquise = Color(0xff40e0d0);
 const red = Colors.red;
 const pink = Colors.pink;
 const green = Color.fromARGB(255, 58, 169, 80);
+const amber = Colors.amber;
 const white = Colors.white;
 const black = Colors.black;
 const transparent = Colors.transparent;

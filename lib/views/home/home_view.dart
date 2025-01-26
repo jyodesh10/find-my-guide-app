@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_rating_bar/custom_rating_bar.dart';
 import 'package:findmyguide/constants/color_constants.dart';
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
+import 'package:findmyguide/models/home_model.dart';
 import 'package:findmyguide/views/home/blog_detail_view.dart';
 import 'package:findmyguide/views/home/bloglist_view.dart';
 import 'package:findmyguide/views/home/guide_detail_view.dart';
@@ -10,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
+import '../../constants/url_constants.dart';
+import '../../controllers/profile_controller.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/custom_cacheimage.dart';
 import 'tour_detail_view.dart';
@@ -23,44 +27,50 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final controller = Get.put(HomeController());
+  final profilecontroller = Get.put(ProfileController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryClr,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await Future.delayed(const Duration(milliseconds: 200), () async {
-              await controller.fetchall();
-            });
-          },
-          color: blue,
-          backgroundColor: white,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                topSection(),
-                searchSection(),
-                Obx(() => controller.loading.isTrue
-                  ? const Center(child: LoadingGif())
-                  : Column(
-                      children: [
-                        // locationsSection(),
-                        toursSection(),
-                        blogsSection(),
-                        guideSection(),
-                      ],
+      body: Stack(
+        children: [
+          Image.asset(backgroundImg, fit: BoxFit.cover,),
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await Future.delayed(const Duration(milliseconds: 200), () async {
+                  await controller.fetchall();
+                });
+              },
+              color: blue,
+              backgroundColor: white,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    topSection(),
+                    searchSection(),
+                    Obx(() => controller.loading.isTrue
+                      ? const Center(child: LoadingGif())
+                      : Column(
+                          children: [
+                            // locationsSection(),
+                            toursSection(),
+                            blogsSection(),
+                            guideSection(),
+                          ],
+                        )
+                    ),
+                    SizedBox(
+                      height: 50.sp,
                     )
+                  ],
                 ),
-                SizedBox(
-                  height: 50.sp,
-                )
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -68,53 +78,65 @@ class _HomeViewState extends State<HomeView> {
   topSection() {
     return SizedBox(
       height: 45.sp,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.sp),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: Obx(() => 
+        profilecontroller.loading.isTrue
+          ? const SizedBox() 
+          : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "Good Morning,\nJyodesh",
-                      style: titleStyle.copyWith(
-                          fontSize: 17.sp, color: black.withOpacity(0.8)),
-                    ),
-                    SizedBox(
-                      height: 12.sp,
-                    ),
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.pin_drop,
-                          size: 18.sp,
-                          color: green,
+                        Text(
+                          "Good Morning,\n${profilecontroller.user.username}",
+                          style: titleStyle.copyWith(
+                              fontSize: 17.sp, color: black.withOpacity(0.8)),
                         ),
                         SizedBox(
-                          width: 8.sp,
+                          height: 12.sp,
                         ),
-                        Text(
-                          "Kathmandu, Nepal",
-                          style: midTextStyle.copyWith(
-                              fontSize: 14.sp, color: greyblueDrkDrk),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.pin_drop,
+                              size: 18.sp,
+                              color: green,
+                            ),
+                            SizedBox(
+                              width: 8.sp,
+                            ),
+                            Text(
+                              "Kathmandu, Nepal",
+                              style: midTextStyle.copyWith(
+                                  fontSize: 14.sp, color: greyblueDrkDrk),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      elevation: 10,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: CachedNetworkImage(
+                          imageUrl: profilecontroller.user.image.toString(), fit: BoxFit.cover, height: 32.sp, width: 32.sp
+                        )
+                      ), 
+                    )
                   ],
                 ),
-                CircleAvatar(
-                  backgroundColor: greyblue,
-                  radius: 22.sp,
-                )
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+      ) 
     );
   }
 
@@ -198,15 +220,16 @@ class _HomeViewState extends State<HomeView> {
         SizedBox(
           height: 65.sp,
           child: ListView.separated(
-            itemCount: controller.toursList.length,
+            itemCount: controller.homedata.recommendedTours!.length,
             scrollDirection: Axis.horizontal,
             shrinkWrap: true,
             padding: EdgeInsets.symmetric(horizontal: 18.sp),
             itemBuilder: (context, index) {
+              RecommendedTour tours = controller.homedata.recommendedTours![index];
               return InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
-                  Get.to(() => TourDetailView(id:controller.toursList[index].id.toString() ,),
+                  Get.to(() => TourDetailView(id:tours.id.toString() ,),
                       transition: Transition.fade);
                 },
                 child: Column(
@@ -228,7 +251,7 @@ class _HomeViewState extends State<HomeView> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: CustomCachedNetworkImage(imageUrl: controller.toursList[index].image!.first.toString(), height: 52.sp, width: 60.w,),
+                              child: CustomCachedNetworkImage(imageUrl: tours.image!.first.toString(), height: 52.sp, width: 60.w,),
                             ),
                           ),
                           Container(
@@ -240,7 +263,7 @@ class _HomeViewState extends State<HomeView> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
-                              controller.toursList[index].highlights!.duration
+                              tours.highlights!.duration
                                   .toString(),
                               style: smallTextStyle,
                             ),
@@ -255,14 +278,14 @@ class _HomeViewState extends State<HomeView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            controller.toursList[index].title.toString(),
+                            tours.title.toString(),
                             style: midTextStyle.copyWith(
                                 fontWeight: FontWeight.w600),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            controller.toursList[index].price.toString(),
+                            tours.price.toString(),
                             style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -297,12 +320,12 @@ class _HomeViewState extends State<HomeView> {
             TextButton(
               onPressed: () {
                 controller.initialPage.value = 1;
-                controller.blogsList.clear();
-                for (var i = 0; i < controller.blogsHomeList.length; i++) {
-                  if(!controller.blogsList.map((f) => f.id).toList().contains(controller.blogsHomeList[i].id)) {
-                    controller.blogsList.add(controller.blogsHomeList[i]);
-                  }
-                }
+                // controller.blogsList.clear();
+                // for (var i = 0; i < controller.blogsHomeList.length; i++) {
+                //   if(!controller.blogsList.map((f) => f.id).toList().contains(controller.blogsHomeList[i].id)) {
+                //     controller.blogsList.add(controller.blogsHomeList[i]);
+                //   }
+                // }
                 Get.to(() => const BloglistView(), transition: Transition.rightToLeft); 
               }, 
               child: Text("View all", style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),)
@@ -313,14 +336,15 @@ class _HomeViewState extends State<HomeView> {
       SizedBox(
         height: 75.sp,
         child: ListView.separated(
-          itemCount: controller.blogsHomeList.length,
+          itemCount: controller.homedata.blogs!.length,
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(horizontal: 18.sp),
           itemBuilder: (context, index) {
+            Blog blogs = controller.homedata.blogs![index];
             return InkWell(
               borderRadius: BorderRadius.circular(12),
-              onTap: () => Get.to(() => BlogDetailView(id: controller.blogsHomeList[index].id.toString(),),
+              onTap: () => Get.to(() => BlogDetailView(id: blogs.id.toString(),),
                   transition: Transition.fade),
               child: Card(
                 color: white,
@@ -344,7 +368,7 @@ class _HomeViewState extends State<HomeView> {
                           topLeft: Radius.circular(12),
                           topRight: Radius.circular(12)
                         ),
-                        child: CustomCachedNetworkImage(imageUrl: controller.blogsHomeList[index].image.toString()),
+                        child: CustomCachedNetworkImage(imageUrl:blogs.image.toString()),
                       ),
 
                     ),
@@ -361,7 +385,7 @@ class _HomeViewState extends State<HomeView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            controller.blogsHomeList[index].title.toString(),
+                            blogs.title.toString(),
                             style: midTextStyle.copyWith(
                                 fontWeight: FontWeight.w600),
                             maxLines: 2,
@@ -371,7 +395,7 @@ class _HomeViewState extends State<HomeView> {
                             height: 8.sp,
                           ),
                           Text(
-                            DateTimeFormatter.formatDate(controller.blogsHomeList[index].createdAt.toString()),
+                            DateTimeFormatter.formatDate(blogs.createdAt.toString()),
                             style: smallTextStyle.copyWith(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13.sp,
@@ -383,7 +407,7 @@ class _HomeViewState extends State<HomeView> {
                             height: 8.sp,
                           ),
                           Text(
-                            controller.blogsHomeList[index].content.toString(),
+                            blogs.content.toString(),
                             style: smallTextStyle,
                             maxLines: 4,
                             overflow: TextOverflow.ellipsis,
@@ -422,15 +446,16 @@ class _HomeViewState extends State<HomeView> {
           height: 12.sp,
         ),
         ListView.separated(
-          itemCount: controller.guidesList.length,
+          itemCount: controller.homedata.guidesNearby!.length,
           shrinkWrap: true,
           padding: EdgeInsets.symmetric(horizontal: 16.sp),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
+            GuidesNearby guides = controller.homedata.guidesNearby![index];
             return InkWell(
               borderRadius: BorderRadius.circular(15.sp),
               onTap: () {
-                Get.to(() => GuideDetailView(id: controller.guidesList[index].id.toString(),),
+                Get.to(() => GuideDetailView(id:guides.id.toString(),),
                     transition: Transition.fade);
               },
               child: Row(
@@ -454,12 +479,12 @@ class _HomeViewState extends State<HomeView> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12.sp),
-                          child: CustomCachedNetworkImage(imageUrl: "${controller.guidesList[index].image}")
+                          child: CustomCachedNetworkImage(imageUrl: "${guides.image}")
                         ),
                       ),
                       Positioned(
                         right: 0,
-                        child:  controller.guidesList[index].isVerified == false
+                        child:  guides. isVerified == false
                           ? const SizedBox()
                           : CircleAvatar(
                             radius: 15.sp,
@@ -475,7 +500,7 @@ class _HomeViewState extends State<HomeView> {
                   Expanded(
                     child: ListTile(
                       title: Text(
-                          "${controller.guidesList[index].firstname} ${controller.guidesList[index].lastname}",
+                          "${guides.firstname} ${guides.lastname}",
                           style: midTextStyle.copyWith(
                               fontWeight: FontWeight.bold)),
                       subtitle: Column(
@@ -483,7 +508,7 @@ class _HomeViewState extends State<HomeView> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
-                            "${controller.guidesList[index].location?.city}, ${controller.guidesList[index].location?.country}",
+                            "${guides.location?.city}, ${guides.location?.country}",
                             style: subtitleStyle,
                           ),
                           Divider(
@@ -494,7 +519,7 @@ class _HomeViewState extends State<HomeView> {
                             filledIcon: Icons.star_rounded,
                             emptyIcon: Icons.star_border_rounded,
                             size: 20.sp,
-                            initialRating: double.parse( controller.guidesList[index].rating.toString()),
+                            initialRating: double.parse( guides.rating.toString()),
                             maxRating: 5,
                           ),
                           SizedBox(
@@ -502,12 +527,12 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           RichText(
                               text: TextSpan(
-                                  text: controller.guidesList[index].price?[0],
+                                  text: guides.price?[0],
                                   style: titleStyle.copyWith(
                                       fontSize: 15.5.sp, color: blue),
                                   children: [
                                 TextSpan(
-                                    text: controller.guidesList[index].price?.replaceAll("\$", ""),
+                                    text: guides.price?.replaceAll("\$", ""),
                                     style: titleStyle.copyWith(
                                         fontSize: 17.5.sp, color: blue))
                               ]))
