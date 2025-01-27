@@ -71,7 +71,7 @@ class _BookingViewState extends State<BookingView> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: CustomCachedNetworkImage(imageUrl: booking.tour!.image!.first.toString(), fit: BoxFit.cover, height: 40.sp, width: 28.w,),
+              child: CustomCachedNetworkImage(imageUrl: booking.tour!.image!.first.toString(), fit: BoxFit.cover, height: 42.sp, width: 30.w,),
             ),
             SizedBox(
               width: 12.sp,
@@ -80,7 +80,7 @@ class _BookingViewState extends State<BookingView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("${booking.tour!.title}", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                  Text("${booking.tour!.title}", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),maxLines: 2, overflow: TextOverflow.ellipsis,),
                   SizedBox(
                     height: 5.sp,
                   ),

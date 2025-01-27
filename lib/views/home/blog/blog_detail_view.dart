@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../constants/color_constants.dart';
-import '../../widgets/custom_cacheimage.dart';
+import '../../../constants/color_constants.dart';
+import '../../../widgets/custom_cacheimage.dart';
 
 class BlogDetailView extends StatefulWidget {
   const BlogDetailView({super.key, required this.id});

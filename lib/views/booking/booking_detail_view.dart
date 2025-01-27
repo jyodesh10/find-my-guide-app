@@ -1,6 +1,6 @@
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/utils/date_formatter.dart';
-import 'package:findmyguide/views/home/tour_detail_view.dart';
+import 'package:findmyguide/views/home/tour/tour_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';

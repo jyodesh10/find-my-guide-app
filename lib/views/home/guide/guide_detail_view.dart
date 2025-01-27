@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../constants/color_constants.dart';
+import '../../../constants/color_constants.dart';
 
 class GuideDetailView extends StatefulWidget {
   const GuideDetailView({super.key, required this.id});

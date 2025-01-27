@@ -1,6 +1,7 @@
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/login_controller.dart';
 import 'package:findmyguide/utils/dialog_boxes.dart';
+import 'package:findmyguide/views/auth/register_view.dart';
 import 'package:findmyguide/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -62,7 +63,20 @@ class _LoginViewState extends State<LoginView> {
                   } else {
                     controller.loginRequest();
                   }
-                })
+                }
+              ),
+              MaterialButton(
+                color: greyblue,
+                minWidth: 50.w,
+                height: 26.sp,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)
+                ),
+                child: Text("Register", style: subtitleStyle,),
+                onPressed: (){
+                  Get.to(()=> RegisterView());
+                }
+              )
             ],
           ),
         ),

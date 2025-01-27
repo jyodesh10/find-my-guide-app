@@ -1,6 +1,6 @@
 import 'package:findmyguide/controllers/wishlist_controller.dart';
 import 'package:findmyguide/models/wishlist_model.dart';
-import 'package:findmyguide/views/home/tour_detail_view.dart';
+import 'package:findmyguide/views/home/tour/tour_detail_view.dart';
 import 'package:findmyguide/widgets/custom_appbar.dart';
 import 'package:findmyguide/widgets/custom_cacheimage.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';

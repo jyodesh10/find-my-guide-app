@@ -1,3 +1,5 @@
+import 'package:findmyguide/utils/shared_pref.dart';
+import 'package:findmyguide/views/walkthrough/roleselection_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +19,11 @@ class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
     super.initState();
-      Future.delayed(const Duration(seconds: 1), ()=> Get.off(() => const LoginView()));
+      if(SharedPref.read("isFirstTime").toString() != "null"/*  || SharedPref.read("isFirstTime") != true  */) {
+        Future.delayed(const Duration(seconds: 1), ()=> Get.off(() => const LoginView()));
+      } else {
+        Future.delayed(const Duration(seconds: 1), ()=> Get.off(() => const RoleSelectionView()));
+      }
   }
   @override
   Widget build(BuildContext context) {

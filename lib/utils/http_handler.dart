@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:findmyguide/constants/color_constants.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-
-import 'dialog_boxes.dart';
 
 Future handleRequest(
     {required String method,
@@ -38,21 +36,16 @@ Future handleRequest(
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      return jsonDecode(utf8.decode(response.bodyBytes));
+      // return jsonDecode(utf8.decode(response.bodyBytes));
+      return jsonDecode(response.body);
     } else {
       // Handle specific error messages from the API
       if (response.body.isNotEmpty) {
         Map<String, dynamic> errorData = jsonDecode(response.body);
         if (errorData.containsKey('message')) {
           // Get.back();
-          customsnackBar(message: errorData['message'], backgroundColor: red.withOpacity(0.1));
-          // Get.showSnackbar(GetSnackBar(
-          //   message:errorData['message'],
-          //   animationDuration: const Duration(milliseconds: 340),
-          //   duration: const Duration(seconds: 1),
-          //   margin: const EdgeInsets.all(20),
-          //   borderRadius: 12,            
-          // ));
+          // customsnackBar(message: errorData['message'], backgroundColor: red.withOpacity(0.1));
+          Fluttertoast.showToast(msg: errorData['message']);
           throw Exception('API Error: ${errorData['message']}');
         }
       }
