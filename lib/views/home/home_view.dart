@@ -4,10 +4,10 @@ import 'package:findmyguide/constants/color_constants.dart';
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/models/home_model.dart';
-import 'package:findmyguide/views/home/blog_detail_view.dart';
-import 'package:findmyguide/views/home/bloglist_view.dart';
-import 'package:findmyguide/views/home/guide_detail_view.dart';
-import 'package:findmyguide/widgets/loading_widgets.dart';
+import 'package:findmyguide/views/home/blog/blog_detail_view.dart';
+import 'package:findmyguide/views/home/blog/bloglist_view.dart';
+import 'package:findmyguide/views/home/guide/guide_detail_view.dart';
+import 'package:findmyguide/views/home/search/search_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -16,7 +16,8 @@ import '../../constants/url_constants.dart';
 import '../../controllers/profile_controller.dart';
 import '../../utils/date_formatter.dart';
 import '../../widgets/custom_cacheimage.dart';
-import 'tour_detail_view.dart';
+import '../../widgets/loading_widgets.dart';
+import 'tour/tour_detail_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -29,10 +30,20 @@ class _HomeViewState extends State<HomeView> {
   final controller = Get.put(HomeController());
   final profilecontroller = Get.put(ProfileController());
 
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    
+  }
+
   @override
   Widget build(BuildContext context) {
+    // controller.getLocation();
     return Scaffold(
       backgroundColor: primaryClr,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           Image.asset(backgroundImg, fit: BoxFit.cover,),
@@ -45,28 +56,59 @@ class _HomeViewState extends State<HomeView> {
               },
               color: blue,
               backgroundColor: white,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    topSection(),
-                    searchSection(),
-                    Obx(() => controller.loading.isTrue
-                      ? const Center(child: LoadingGif())
-                      : Column(
-                          children: [
-                            // locationsSection(),
-                            toursSection(),
-                            blogsSection(),
-                            guideSection(),
-                          ],
-                        )
+              child: CustomScrollView(
+                controller: scrollController,
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: topSection(),
+                  ),
+                  SliverAppBar(
+                    backgroundColor: transparent,
+                    elevation: 0,
+                    expandedHeight: 35.sp,
+                    collapsedHeight: 35.sp,
+                    scrolledUnderElevation: 0,
+                    flexibleSpace: Center(
+                      child: searchSection(),
                     ),
-                    SizedBox(
-                      height: 50.sp,
-                    )
-                  ],
-                ),
+                    pinned: true,
+                    floating: true,
+                    centerTitle: true,
+                    snap: true,
+                  ),
+                  SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // topSection(),
+                        // searchSection(),
+                        Obx(() => 
+                          AnimatedOpacity(
+                            duration: const Duration(
+                              milliseconds: 600,
+                            ),
+                            opacity: controller.loading.isTrue || profilecontroller.loading.isTrue ? 0.0 : 1.0,
+                            child: controller.loading.isTrue || profilecontroller.loading.isTrue
+                              ? 
+                              // const SizedBox()
+                              const Center(child: LoadingGif())
+                              : Column(
+                                children: [
+                                  // locationsSection(),
+                                  toursSection(),
+                                  blogsSection(),
+                                  guideSection(),
+                                ],
+                              ),
+                          )
+                        ),
+                        SizedBox(
+                          height: 50.sp,
+                        )
+                      ],
+                    ),
+                  )
+                ]
               ),
             ),
           ),
@@ -76,69 +118,93 @@ class _HomeViewState extends State<HomeView> {
   }
 
   topSection() {
-    return SizedBox(
-      height: 45.sp,
-      child: Obx(() => 
-        profilecontroller.loading.isTrue
-          ? const SizedBox() 
-          : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.sp),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() =>
+      AnimatedSlide(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInSine,
+        offset: profilecontroller.loading.isTrue ?  const Offset(10,0) : Offset.zero,
+        child: SizedBox(
+          height: 45.sp,
+          child: Obx(() => 
+            profilecontroller.loading.isTrue
+              ? const SizedBox() 
+              : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.sp),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Good Morning,\n${profilecontroller.user.username}",
-                          style: titleStyle.copyWith(
-                              fontSize: 17.sp, color: black.withOpacity(0.8)),
-                        ),
-                        SizedBox(
-                          height: 12.sp,
-                        ),
-                        Row(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.pin_drop,
-                              size: 18.sp,
-                              color: green,
+                            Text(
+                              "Good Morning,\n${profilecontroller.user.username}",
+                              style: titleStyle.copyWith(
+                                  fontSize: 17.sp, color: black.withOpacity(0.8)),
                             ),
                             SizedBox(
-                              width: 8.sp,
+                              height: 12.sp,
                             ),
-                            Text(
-                              profilecontroller.user.location?.city == "null" || profilecontroller.user.location?.country == "null"
-                               ? "${profilecontroller.user.location?.city}, ${profilecontroller.user.location?.country}"
-                               : "Add your location",
-                              style: midTextStyle.copyWith(
-                                  fontSize: 14.sp, color: greyblueDrkDrk),
+                            GestureDetector(
+                              onTap: () async {
+                                await controller.getLocation();
+                              },
+                              child: Obx(() => controller.locationLoading.isTrue
+                                ? Container(
+                                  height: 18.sp,
+                                  width: 50.sp,
+                                  padding: EdgeInsets.symmetric(vertical: 12.sp),
+                                  child: const LinearProgressIndicator(
+                                      minHeight: 1,
+                                      color: blue,
+                                      backgroundColor: primaryClr,
+                                  ),
+                                )
+                                : Row(
+                                  children: [
+                                    Icon(
+                                      Icons.pin_drop,
+                                      size: 18.sp,
+                                      color: green,
+                                    ),
+                                    SizedBox(
+                                      width: 8.sp,
+                                    ),
+                                    Text(
+                                      profilecontroller.user.location?.city != "null" || profilecontroller.user.location?.country != "null"
+                                       ? "${profilecontroller.user.location?.city}, ${profilecontroller.user.location?.country}"
+                                       : "Tap to get your location",
+                                      style: midTextStyle.copyWith(
+                                          fontSize: 14.sp, color: greyblueDrkDrk),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
                         ),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          elevation: 10,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: CachedNetworkImage(
+                              imageUrl: profilecontroller.user.image.toString(), fit: BoxFit.cover, height: 32.sp, width: 32.sp
+                            )
+                          ), 
+                        )
                       ],
                     ),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      elevation: 10,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: CachedNetworkImage(
-                          imageUrl: profilecontroller.user.image.toString(), fit: BoxFit.cover, height: 32.sp, width: 32.sp
-                        )
-                      ), 
-                    )
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-      ) 
+          ) 
+        ),
+      ),
     );
   }
 
@@ -159,6 +225,8 @@ class _HomeViewState extends State<HomeView> {
           cursorColor: greyblueDrkDrk,
           cursorHeight: 20.sp,
           autofocus: false,
+          readOnly: true,
+          onTap: () => Get.to(() => const SearchView()),
           decoration: InputDecoration(
               filled: true,
               fillColor: white,

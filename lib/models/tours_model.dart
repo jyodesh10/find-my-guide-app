@@ -56,6 +56,34 @@ class ToursModel {
     };
 }
 
+class Guide {
+    String? id;
+    String? firstname;
+    String? lastname;
+
+    Guide({
+        this.id,
+        this.firstname,
+        this.lastname,
+    });
+
+    factory Guide.fromJson(String str) => Guide.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Guide.fromMap(Map<String, dynamic> json) => Guide(
+        id: json["_id"],
+        firstname: json["firstname"],
+        lastname: json["lastname"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "_id": id,
+        "firstname": firstname,
+        "lastname": lastname,
+    };
+}
+
 class Highlights {
     Location? location;
     String? duration;
@@ -189,33 +217,5 @@ class User {
         "_id": id,
         "username": username,
         "image": image,
-    };
-}
-
-class Guide {
-    String? id;
-    String? firstname;
-    String? lastname;
-
-    Guide({
-        this.id,
-        this.firstname,
-        this.lastname,
-    });
-
-    factory Guide.fromJson(String str) => Guide.fromMap(json.decode(str));
-
-    String toJson() => json.encode(toMap());
-
-    factory Guide.fromMap(Map<String, dynamic> json) => Guide(
-        id: json["_id"],
-        firstname: json["firstname"],
-        lastname: json["lastname"],
-    );
-
-    Map<String, dynamic> toMap() => {
-        "_id": id,
-        "firstname": firstname,
-        "lastname": lastname,
     };
 }

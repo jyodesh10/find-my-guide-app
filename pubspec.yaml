@@ -49,6 +49,7 @@ dependencies:
   http: ^1.2.2
   custom_rating_bar: ^3.0.0
   fluttertoast: ^8.2.10
+  location: ^7.0.1
 
 dev_dependencies:
   flutter_test:

@@ -2,7 +2,7 @@ import 'package:findmyguide/constants/color_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/models/blogs_model.dart';
 import 'package:findmyguide/utils/date_formatter.dart';
-import 'package:findmyguide/views/home/blog_detail_view.dart';
+import 'package:findmyguide/views/home/blog/blog_detail_view.dart';
 import 'package:findmyguide/widgets/custom_appbar.dart';
 import 'package:findmyguide/widgets/custom_cacheimage.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../constants/font_constants.dart';
+import '../../../constants/font_constants.dart';
 
 class BloglistView extends StatefulWidget {
   const BloglistView({super.key});

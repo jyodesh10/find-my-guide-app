@@ -1,7 +1,7 @@
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
 import 'package:findmyguide/controllers/wishlist_controller.dart';
-import 'package:findmyguide/views/home/guide_detail_view.dart';
+import 'package:findmyguide/views/home/guide/guide_detail_view.dart';
 import 'package:findmyguide/widgets/custom_cacheimage.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +9,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-import '../../constants/color_constants.dart';
-import '../../controllers/booking_controller.dart';
-import '../../models/tours_model.dart';
-import '../../utils/date_picker.dart';
-import '../../widgets/custom_textfield.dart';
-import '../../widgets/review_card.dart';
+import '../../../constants/color_constants.dart';
+import '../../../controllers/booking_controller.dart';
+import '../../../models/tours_model.dart';
+import '../../../utils/date_picker.dart';
+import '../../../widgets/custom_textfield.dart';
+import '../../../widgets/review_card.dart';
 
 class TourDetailView extends StatefulWidget {
   const TourDetailView({super.key, required this.id});
@@ -43,6 +43,7 @@ class _TourDetailViewState extends State<TourDetailView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryClr,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: primaryClr,
         scrolledUnderElevation: 0.5,
@@ -70,28 +71,26 @@ class _TourDetailViewState extends State<TourDetailView> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Obx(() => controller.tourloading.isTrue
-            ? const LoadingGif()
-            : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 10.sp,
-                ),
-                titleImgSection(),
-                SizedBox(
-                  height: 5.sp,
-                ),
-                highlightSection(),
-                SizedBox(
-                  height: 15.sp,
-                ),
-                descriptionSection(),
-                reviewSection()
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Obx(() => controller.tourloading.isTrue
+          ? const LoadingGif()
+          : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 10.sp,
+              ),
+              titleImgSection(),
+              SizedBox(
+                height: 5.sp,
+              ),
+              highlightSection(),
+              SizedBox(
+                height: 15.sp,
+              ),
+              descriptionSection(),
+              reviewSection()
+            ],
           ),
         ),
       ),
@@ -315,95 +314,142 @@ class _TourDetailViewState extends State<TourDetailView> {
     );
   }
 
-  
+  var participants = 1.obs;
   void confirmBookingBottomsheet(BuildContext context) {
-    TextEditingController participants = TextEditingController();
     TextEditingController date = TextEditingController();
-    participants.text = "1"; 
+    participants.value = 1; 
     showModalBottomSheet(
       context: context, 
+      isScrollControlled: true,
       builder: (context) {
-        return Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+        return  StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  color: primaryClr
+                ),
+                child:Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 10.sp,
+                      ),
+                      Divider(
+                        color: black.withOpacity(0.3),
+                        height: 15.sp,
+                        thickness: 3,
+                        endIndent: 40.w,
+                        indent: 40.w,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15.sp,vertical: 10.sp),
+                        child: Text("Prticipants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 18.sp,
+                          ),
+                          MaterialButton(
+                            onPressed: (){
+                              participants.value++;
+                            },
+                            minWidth: 30.sp,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100)
+                            ),
+                            color: blue,
+                            child: Text("+", style: titleStyle.copyWith(color: white),),
+                          ),
+                          SizedBox(
+                            width: 15.sp,
+                          ),
+                          Obx(() => Text(participants.value.toString(), style: titleStyle.copyWith(color: black),)),
+                          SizedBox(
+                            width: 15.sp,
+                          ),
+                          MaterialButton(
+                            onPressed: (){
+                              if(participants.value > 1) {
+                                participants.value--;
+                              }
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100)
+                            ),
+                            color: blue,
+                            minWidth: 30.sp,
+                            child: Text("-", style: titleStyle.copyWith(color: white),),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 10.sp),
+                        child: Text("Book for (Date)", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                      ),
+                      CustomTextfield(
+                        hintText: "mm/dd/yy",
+                        readOnly: true,
+                        controller: date,
+                        onTap: () async {
+                          String? pickeddate = await customDatePicker(context, lastDate: DateTime(DateTime.now().add(const Duration(days: 10000)).year));
+                          if(pickeddate!.isNotEmpty){
+                            date.text = pickeddate.toString();
+                          }
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15.sp),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Price", style: midTextStyle.copyWith(fontWeight: FontWeight.bold, color: blue),),
+                            Obx(()=> Text("${participants.value} x ${controller.tour.price}", style: midTextStyle,)),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20.sp,
+                      ),
+                      Center(
+                        child: MaterialButton(
+                          color: blue,
+                          height: 28.sp,
+                          minWidth: 38.w,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
+                          child: Text("Confirm", style: midTextStyle.copyWith(color: white),),
+                          onPressed: () async {
+                            if(date.text.isNotEmpty) {
+                              Get.back();
+                              await bookingcontroller.addToBooking(controller.tour.id.toString(), date.text).whenComplete(() {
+                                participants.value = 1;
+                                date.clear();
+                              });
+                            } else {
+                              Fluttertoast.showToast(msg: "Date is required");
+                            }
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20.sp,
+                      ),
+                    ],
+                  ),
+                )
               ),
-              color: primaryClr
-            ),
-            child:Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 10.sp,
-                  ),
-                  Divider(
-                    color: black.withOpacity(0.3),
-                    height: 15.sp,
-                    thickness: 3,
-                    endIndent: 40.w,
-                    indent: 40.w,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.sp,vertical: 10.sp),
-                    child: Text("Prticipants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
-                  ),
-                  CustomTextfield(
-                    hintText: "0",
-                    controller: participants,
-                    keyboardType: TextInputType.number,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 10.sp),
-                    child: Text("Book for (Date)", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
-                  ),
-                  CustomTextfield(
-                    hintText: "mm/dd/yy",
-                    readOnly: true,
-                    controller: date,
-                    onTap: () async {
-                      String? pickeddate = await customDatePicker(context, lastDate: DateTime(DateTime.now().add(const Duration(days: 10000)).year));
-                      if(pickeddate!.isNotEmpty){
-                        date.text = pickeddate.toString();
-                      }
-                    },
-                  ),
-                  SizedBox(
-                    height: 20.sp,
-                  ),
-                  Center(
-                    child: MaterialButton(
-                      color: blue,
-                      height: 28.sp,
-                      minWidth: 38.w,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.sp)),
-                      child: Text("Confirm", style: midTextStyle.copyWith(color: white),),
-                      onPressed: () async {
-                        if(date.text.isNotEmpty) {
-                          Get.back();
-                          await bookingcontroller.addToBooking(controller.tour.id.toString(), date.text).whenComplete(() {
-                            participants.clear();
-                            date.clear();
-                          });
-                        } else {
-                          Fluttertoast.showToast(msg: "Date is required");
-                        }
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.sp,
-                  ),
-                ],
-              ),
-            )
-          ),
+            );
+          },
         );
       },
     );
