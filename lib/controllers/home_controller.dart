@@ -2,10 +2,12 @@
 
 
 import 'package:findmyguide/constants/url_constants.dart';
+import 'package:findmyguide/controllers/profile_controller.dart';
 import 'package:findmyguide/models/blogs_model.dart';
 import 'package:findmyguide/models/guides_model.dart';
 import 'package:findmyguide/models/tours_model.dart';
 import 'package:findmyguide/utils/http_handler.dart';
+import 'package:findmyguide/utils/location_helper.dart';
 import 'package:findmyguide/utils/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,6 +25,11 @@ class HomeController extends GetxController{
   var blogsList = <BlogData>[].obs;
 
   var loading = false.obs;
+
+  Map<String, String>? headers = {
+    "Content-Type":"application/json",
+    "Authorization": "Bearer ${SharedPref.read("accessToken")}"
+  };
 
   @override
   void onInit() {
@@ -126,7 +133,38 @@ class HomeController extends GetxController{
     guide = GuidesModel.fromMap(data);
   }
 
+  var locationLoading = false.obs;
+  Future getLocation() async {
+    locationLoading(true);
+    final loca = await LocationHelper().getLocation();
+    var data = await handleRequest(method: "get", url: "https://maps.googleapis.com/maps/api/geocode/json?latlng=${loca?.latitude},${loca?.longitude}&result_type=locality&key=AIzaSyCAXHaJF6ZAnU7OB46NBzQvY0_HFS73Olc");
+    if(data !=null) {
+      debugPrint("City:${data['results'][0]['address_components'].first['long_name']}");
+      debugPrint("Country:${data['results'][0]['address_components'].last['long_name']}");
+      debugPrint("Region:${data['results'][0]['address_components'][2]['long_name']}");
+      await updateUserLocation(
+        city: data['results'][0]['address_components'].first['long_name'],
+        country: data['results'][0]['address_components'].last['long_name'],
+        region: data['results'][0]['address_components'].last['long_name'],
+      );
+    }
+  }
 
+  final profileCon = Get.put(ProfileController());
+
+  Future updateUserLocation({country, city, region}) async {
+    await handleRequest(method: "put", url: "${baseUrl}api/users/${SharedPref.read('id')}", headers: headers,
+      body: {
+        "location" : {
+          "country": country,
+          "city": city,
+          "region": region
+        }
+      }
+    );
+    await profileCon.getUserById();
+    locationLoading(false);
+  }
 
 
   //bloglist
