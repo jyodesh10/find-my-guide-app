@@ -12,6 +12,7 @@ import 'package:findmyguide/utils/shared_pref.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../constants/sercet.dart';
 import '../models/home_model.dart';
 
 
@@ -158,7 +159,7 @@ class HomeController extends GetxController{
     double? lon = loca?.longitude; 
     // double? lat = 28.224796; 
     // double? lon = 83.948816; 
-    var data = await handleRequest(method: "get", url: "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&result_type=locality&key=AIzaSyCAXHaJF6ZAnU7OB46NBzQvY0_HFS73Olc");
+    var data = await handleRequest(method: "get", url: "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&result_type=locality&key=$googleMapToken");
     if(data !=null) {
       debugPrint("City:${data['results'][0]['address_components'].first['long_name']}");
       debugPrint("Country:${data['results'][0]['address_components'].last['long_name']}");
