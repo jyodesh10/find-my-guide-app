@@ -40,6 +40,7 @@ class HomeController extends GetxController{
 
   fetchall() async {
     getHome();
+    getLocation();
     clearAll();
   }
 
@@ -133,11 +134,31 @@ class HomeController extends GetxController{
     guide = GuidesModel.fromMap(data);
   }
 
+  List<ToursModel> toursByGuide = [];
+  var tourByGuideLoading = false.obs;
+  Future getTourByGuideId(id) async {
+    tourByGuideLoading(true);
+    List data = await handleRequest(
+      method: "get", 
+      url: "${baseUrl}api/guides/$id/tours", 
+      headers: {
+        "Content-Type":"application/json",
+        "Authorization": "Bearer ${SharedPref.read("accessToken")}"
+      }
+    );
+    toursByGuide = data.map((e) => ToursModel.fromMap(e)).toList();
+    tourByGuideLoading(false);
+  }
+
   var locationLoading = false.obs;
   Future getLocation() async {
     locationLoading(true);
-    final loca = await LocationHelper().getLocation();
-    var data = await handleRequest(method: "get", url: "https://maps.googleapis.com/maps/api/geocode/json?latlng=${loca?.latitude},${loca?.longitude}&result_type=locality&key=AIzaSyCAXHaJF6ZAnU7OB46NBzQvY0_HFS73Olc");
+    var loca = await LocationHelper().getLocation();
+    double? lat = loca?.latitude; 
+    double? lon = loca?.longitude; 
+    // double? lat = 28.224796; 
+    // double? lon = 83.948816; 
+    var data = await handleRequest(method: "get", url: "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&result_type=locality&key=AIzaSyCAXHaJF6ZAnU7OB46NBzQvY0_HFS73Olc");
     if(data !=null) {
       debugPrint("City:${data['results'][0]['address_components'].first['long_name']}");
       debugPrint("Country:${data['results'][0]['address_components'].last['long_name']}");

@@ -73,12 +73,14 @@ class Booking {
 }
 
 class Tour {
+    String? pricePer;
     String? id;
     String? title;
-    String? price;
+    Price? price;
     List<String>? image;
 
     Tour({
+        this.pricePer,
         this.id,
         this.title,
         this.price,
@@ -90,16 +92,38 @@ class Tour {
     String toJson() => json.encode(toMap());
 
     factory Tour.fromMap(Map<String, dynamic> json) => Tour(
+        pricePer: json["pricePer"],
         id: json["_id"],
         title: json["title"],
-        price: json["price"],
+        price: json["price"] == null ? null : Price.fromMap(json["price"]),
         image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
     );
 
     Map<String, dynamic> toMap() => {
+        "pricePer": pricePer,
         "_id": id,
         "title": title,
-        "price": price,
+        "price": price?.toMap(),
         "image": image == null ? [] : List<dynamic>.from(image!.map((x) => x)),
+    };
+}
+
+class Price {
+    String? numberDecimal;
+
+    Price({
+        this.numberDecimal,
+    });
+
+    factory Price.fromJson(String str) => Price.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Price.fromMap(Map<String, dynamic> json) => Price(
+        numberDecimal: json["\u0024numberDecimal"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "\u0024numberDecimal": numberDecimal,
     };
 }

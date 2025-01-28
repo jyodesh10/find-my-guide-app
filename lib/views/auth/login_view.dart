@@ -74,7 +74,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 child: Text("Register", style: subtitleStyle,),
                 onPressed: (){
-                  Get.to(()=> RegisterView());
+                  Get.to(()=> const RegisterView());
                 }
               )
             ],

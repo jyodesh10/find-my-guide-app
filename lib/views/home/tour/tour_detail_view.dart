@@ -89,6 +89,7 @@ class _TourDetailViewState extends State<TourDetailView> {
                 height: 15.sp,
               ),
               descriptionSection(),
+              itinerarySection(),
               reviewSection()
             ],
           ),
@@ -114,7 +115,7 @@ class _TourDetailViewState extends State<TourDetailView> {
                     style: midTextStyle,
                   ),
                   Text(
-                    controller.tour.price.toString(),
+                    "\$ ${controller.tour.price!.numberDecimal} / ${controller.tour.pricePer}",
                     style: titleStyle,
                   )
                 ],
@@ -287,6 +288,28 @@ class _TourDetailViewState extends State<TourDetailView> {
       ],
     );
   }
+  
+  itinerarySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15.sp, vertical: 10.sp).copyWith(bottom: 10.sp, top: 15.sp),
+          child: Text(
+            "Itinerary",
+            style: titleStyle.copyWith(fontSize: 16.sp),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.sp),
+          child: Text(
+            controller.tour.itinerary.toString(),
+            style: subtitleStyle,
+          ),
+        ),
+      ],
+    );
+  }
 
   reviewSection() {
     return Column(
@@ -298,17 +321,21 @@ class _TourDetailViewState extends State<TourDetailView> {
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 18.sp),
-          child: Column(
-            children: List.generate(controller.tour.reviews!.length, (index) {
-              Review review = controller.tour.reviews![index];
-              return ReviewCard(
-                comment: review.comment.toString(),
-                name: review.user!.username.toString(),
-                image: review.user!.image.toString(),
-                rating: review.rating.toString(),
-              );
-            }) 
-          ),
+          child: controller.tour.reviews!.isNotEmpty 
+            ? Column(
+              children: List.generate(controller.tour.reviews!.length, (index) {
+                Review review = controller.tour.reviews![index];
+                return ReviewCard(
+                  comment: review.comment.toString(),
+                  name: review.user!.username.toString(),
+                  image: review.user!.image.toString(),
+                  rating: review.rating.toString(),
+                );
+              }) 
+            )
+            : SizedBox(
+              height: 25.sp,
+              child: Center(child: Text("No reviews Yet", style: subtitleStyle,),))
         )
       ],
     );
@@ -353,7 +380,7 @@ class _TourDetailViewState extends State<TourDetailView> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 15.sp,vertical: 10.sp),
-                        child: Text("Prticipants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                        child: Text("Participants", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold),),
                       ),
                       Row(
                         children: [
@@ -410,13 +437,36 @@ class _TourDetailViewState extends State<TourDetailView> {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 15.sp),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Obx(()=> Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text("Price", style: midTextStyle.copyWith(fontWeight: FontWeight.bold, color: blue),),
-                            Obx(()=> Text("${participants.value} x ${controller.tour.price}", style: midTextStyle,)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Price", style: midTextStyle.copyWith(fontWeight: FontWeight.bold, color: blue),),
+                                Text("${participants.value} x \$ ${controller.tour.price!.numberDecimal}", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                              ],
+                            ),
+                            Divider(
+                              thickness: 1,
+                              indent: 60.w,
+                              height: 10,
+                              color: black.withOpacity(0.2),
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                text: "Total:  ",
+                                style: midTextStyle.copyWith(fontWeight: FontWeight.bold),
+                                children: [
+                                  TextSpan(
+                                    text: "\$ ${participants.value * int.parse(controller.tour.price!.numberDecimal.toString())}",
+                                    style: midTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 18.sp, color: blue)
+                                  )
+                                ]
+                              )
+                            )
                           ],
-                        ),
+                        )),
                       ),
                       SizedBox(
                         height: 20.sp,

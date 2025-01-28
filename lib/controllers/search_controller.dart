@@ -1,3 +1,4 @@
+import 'package:findmyguide/models/guides_model.dart';
 import 'package:findmyguide/models/tours_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,10 +13,12 @@ class SearchHomeController extends GetxController {
     "Authorization": "Bearer ${SharedPref.read("accessToken")}"
   };
 
-  var loading = false.obs;
+  var filter = 0.obs;
+
+  var tourloading = false.obs;
   List<ToursModel> searchTourData = [];
   Future searchTour(String query) async {
-    loading(true);
+    tourloading(true);
     try {
       var data = await handleRequest(
           method: "get",
@@ -23,7 +26,23 @@ class SearchHomeController extends GetxController {
           headers: headers);
       List tourlist = data['data'];
       searchTourData = tourlist.map((e)=> ToursModel.fromMap(e)).toList();
-      loading(false);
+      tourloading(false);
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  var guideloading = false.obs;
+  List<GuidesModel> searchGuideData = [];
+  Future searchGuide(String query) async {
+    guideloading(true);
+    try {
+      List data = await handleRequest(
+          method: "get",
+          url: "${baseUrl}api/guides?search=$query",
+          headers: headers);
+      searchGuideData = data.map((e)=> GuidesModel.fromMap(e)).toList();
+      guideloading(false);
     } on Exception catch (e) {
       debugPrint(e.toString());
     }

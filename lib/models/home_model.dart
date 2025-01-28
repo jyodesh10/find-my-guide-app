@@ -43,13 +43,12 @@ class Blog {
     String? image;
     DateTime? createdAt;
 
-
     Blog({
         this.id,
         this.title,
         this.content,
         this.image,
-        this.createdAt
+        this.createdAt,
     });
 
     factory Blog.fromJson(String str) => Blog.fromMap(json.decode(str));
@@ -69,29 +68,31 @@ class Blog {
         "title": title,
         "content": content,
         "image": image,
-        "createdAt": createdAt?.toIso8601String()
+        "createdAt": createdAt?.toIso8601String(),
     };
 }
 
 class GuidesNearby {
+    String? pricePer;
     String? id;
     String? firstname;
     String? lastname;
     Location? location;
     int? rating;
-    String? image;
-    String? price;
     bool? isVerified;
+    String? image;
+    Price? price;
 
     GuidesNearby({
+        this.pricePer,
         this.id,
         this.firstname,
         this.lastname,
         this.location,
         this.rating,
+        this.isVerified,
         this.image,
         this.price,
-        this.isVerified
     });
 
     factory GuidesNearby.fromJson(String str) => GuidesNearby.fromMap(json.decode(str));
@@ -99,25 +100,27 @@ class GuidesNearby {
     String toJson() => json.encode(toMap());
 
     factory GuidesNearby.fromMap(Map<String, dynamic> json) => GuidesNearby(
+        pricePer: json["pricePer"],
         id: json["_id"],
         firstname: json["firstname"],
         lastname: json["lastname"],
         location: json["location"] == null ? null : Location.fromMap(json["location"]),
         rating: json["rating"],
-        image: json["image"],
-        price: json["price"],
         isVerified: json["isVerified"],
+        image: json["image"],
+        price: json["price"] == null ? null : Price.fromMap(json["price"]),
     );
 
     Map<String, dynamic> toMap() => {
+        "pricePer": pricePer,
         "_id": id,
         "firstname": firstname,
         "lastname": lastname,
         "location": location?.toMap(),
         "rating": rating,
-        "image": image,
-        "price": price,
         "isVerified": isVerified,
+        "image": image,
+        "price": price?.toMap(),
     };
 }
 
@@ -149,14 +152,36 @@ class Location {
     };
 }
 
+class Price {
+    String? numberDecimal;
+
+    Price({
+        this.numberDecimal,
+    });
+
+    factory Price.fromJson(String str) => Price.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Price.fromMap(Map<String, dynamic> json) => Price(
+        numberDecimal: json["\u0024numberDecimal"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "\u0024numberDecimal": numberDecimal,
+    };
+}
+
 class RecommendedTour {
+    String? pricePer;
     String? id;
     String? title;
     Highlights? highlights;
-    String? price;
+    Price? price;
     List<String>? image;
 
     RecommendedTour({
+        this.pricePer,
         this.id,
         this.title,
         this.highlights,
@@ -169,18 +194,20 @@ class RecommendedTour {
     String toJson() => json.encode(toMap());
 
     factory RecommendedTour.fromMap(Map<String, dynamic> json) => RecommendedTour(
+        pricePer: json["pricePer"],
         id: json["_id"],
         title: json["title"],
         highlights: json["highlights"] == null ? null : Highlights.fromMap(json["highlights"]),
-        price: json["price"],
+        price: json["price"] == null ? null : Price.fromMap(json["price"]),
         image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
     );
 
     Map<String, dynamic> toMap() => {
+        "pricePer": pricePer,
         "_id": id,
         "title": title,
         "highlights": highlights?.toMap(),
-        "price": price,
+        "price": price?.toMap(),
         "image": image == null ? [] : List<dynamic>.from(image!.map((x) => x)),
     };
 }

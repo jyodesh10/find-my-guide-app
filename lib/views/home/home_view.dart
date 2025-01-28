@@ -87,8 +87,8 @@ class _HomeViewState extends State<HomeView> {
                             duration: const Duration(
                               milliseconds: 600,
                             ),
-                            opacity: controller.loading.isTrue || profilecontroller.loading.isTrue ? 0.0 : 1.0,
-                            child: controller.loading.isTrue || profilecontroller.loading.isTrue
+                            opacity: controller.loading.isTrue /* || profilecontroller.loading.isTrue */ ? 0.0 : 1.0,
+                            child: controller.loading.isTrue/*  || profilecontroller.loading.isTrue */
                               ? 
                               // const SizedBox()
                               const Center(child: LoadingGif())
@@ -119,10 +119,10 @@ class _HomeViewState extends State<HomeView> {
 
   topSection() {
     return Obx(() =>
-      AnimatedSlide(
+      AnimatedOpacity(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInSine,
-        offset: profilecontroller.loading.isTrue ?  const Offset(10,0) : Offset.zero,
+        opacity: profilecontroller.loading.isTrue ?  0 : 1,
         child: SizedBox(
           height: 45.sp,
           child: Obx(() => 
@@ -355,7 +355,7 @@ class _HomeViewState extends State<HomeView> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            tours.price.toString(),
+                            "\$ ${tours.price!.numberDecimal} / ${tours.pricePer}",
                             style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -597,12 +597,12 @@ class _HomeViewState extends State<HomeView> {
                           ),
                           RichText(
                               text: TextSpan(
-                                  text: guides.price?[0],
+                                  text: "\$ ",
                                   style: titleStyle.copyWith(
                                       fontSize: 15.5.sp, color: blue),
                                   children: [
                                 TextSpan(
-                                    text: guides.price?.replaceAll("\$", ""),
+                                    text: "${guides.price!.numberDecimal} / ${guides.pricePer}",
                                     style: titleStyle.copyWith(
                                         fontSize: 17.5.sp, color: blue))
                               ]))

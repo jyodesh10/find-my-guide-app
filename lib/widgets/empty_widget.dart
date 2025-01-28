@@ -6,7 +6,8 @@ import '../constants/font_constants.dart';
 import '../constants/image_constants.dart';
 
 class EmptyWidget extends StatelessWidget {
-  const EmptyWidget({super.key});
+  const EmptyWidget({super.key, required this.text});
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class EmptyWidget extends StatelessWidget {
           SizedBox(
             height: 15.sp,
           ),
-          Text("Empty wishlist", style: midTextStyle.copyWith(fontWeight: FontWeight.bold, color: black.withOpacity(0.3)),),
+          Text(text, style: midTextStyle.copyWith(fontWeight: FontWeight.bold, color: black.withOpacity(0.3)),),
           SizedBox(
             height: 40.sp,
           ),
