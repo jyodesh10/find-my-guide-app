@@ -136,7 +136,19 @@ class _BookingDetailViewState extends State<BookingDetailView> {
                     minTileHeight: 10.sp,
                     leading: Icon(Icons.price_change_outlined, size: 20.sp,),
                     title: Text("Price", style:  subtitleStyle,),
-                    subtitle: Text(controller.bookingbyId.tour!.price.toString(), style: midTextStyle,),
+                    subtitle: 
+                    RichText(
+                      text: TextSpan(
+                        text: "Total:  ",
+                        style: midTextStyle.copyWith(fontWeight: FontWeight.bold),
+                        children: [
+                          TextSpan(
+                            text: "\$ ${int.parse(controller.bookingbyId.participants.toString()) * int.parse(controller.bookingbyId.tour!.price!.numberDecimal.toString())}",
+                            style: midTextStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 18.sp, color: blue)
+                          )
+                        ]
+                      )
+                    )
                   ),
                   SizedBox(
                     height: 20.sp,

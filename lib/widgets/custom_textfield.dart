@@ -5,7 +5,7 @@ import '../constants/color_constants.dart';
 import '../constants/font_constants.dart';
 
 class CustomTextfield extends StatefulWidget {
-  const CustomTextfield({super.key, required this.hintText, this.suffixIcon, this.controller, this.margin, this.validator, this.keyboardType, this.enabled, this.readOnly, this.onTap});
+  const CustomTextfield({super.key, required this.hintText, this.suffixIcon, this.controller, this.margin, this.validator, this.keyboardType, this.enabled, this.readOnly, this.onTap, this.textInputAction});
 
   final String hintText;
   final Widget? suffixIcon;
@@ -13,6 +13,7 @@ class CustomTextfield extends StatefulWidget {
   final EdgeInsetsGeometry? margin;
   final FormFieldValidator? validator;
   final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
   final bool? enabled;
   final bool? readOnly;
   final void Function()? onTap;
@@ -44,6 +45,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
         autofocus: false,
         controller: widget.controller,
         keyboardType: widget.keyboardType,
+        textInputAction: widget.textInputAction,
         enabled: widget.enabled,
         readOnly: widget.readOnly ?? false,
         onTap: widget.onTap,

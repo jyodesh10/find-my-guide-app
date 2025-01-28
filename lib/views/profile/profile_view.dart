@@ -11,6 +11,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import '../../constants/font_constants.dart';
 import '../../constants/url_constants.dart';
 import '../../widgets/custom_textfield.dart';
+import '../messages/message_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -75,6 +76,17 @@ class _ProfileViewState extends State<ProfileView> {
                           subtitle: Text("Manage your profile", style: smallTextStyle,),
                           trailing:  const Icon(Icons.chevron_right_rounded, color: greyblueDrkDrk,),
                           onTap: () => Get.to(() => const EditProfileView()),
+                        ),
+                        ListTile(
+                          leading: CircleAvatar(
+                            radius: 18.sp,
+                            backgroundColor: greyblue, 
+                            child: const Icon(Icons.message_rounded, color: greyblueDrkDrk,),
+                          ),
+                          title: Text("My Messages", style: midTextStyle.copyWith(fontWeight: FontWeight.bold),),
+                          subtitle: Text("Check your messages", style: smallTextStyle,),
+                          trailing:  const Icon(Icons.chevron_right_rounded, color: greyblueDrkDrk,),
+                          onTap: () => Get.to(() => const MessageView()),
                         ),
                         ListTile(
                           onTap: () {
@@ -146,6 +158,9 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                       ],
                     ),
+                  ),
+                  SizedBox(
+                    height: 50.sp,
                   ),
                 ]
               ),

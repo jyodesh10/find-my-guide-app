@@ -1,14 +1,15 @@
 import 'dart:convert';
 
 class GuidesModel {
+    String? pricePer;
     String? id;
     String? firstname;
     String? lastname;
     String? email;
     String? password;
     Location? location;
-    List<dynamic>? languages;
-    List<dynamic>? specializations;
+    List<String>? languages;
+    List<String>? specializations;
     int? rating;
     bool? isVerified;
     List<dynamic>? documents;
@@ -22,11 +23,12 @@ class GuidesModel {
     String? whatsapp;
     DateTime? dob;
     String? image;
-    String? price;
-    String? phone;
+    Price? price;
     List<Review>? reviews;
+    String? phone;
 
     GuidesModel({
+        this.pricePer,
         this.id,
         this.firstname,
         this.lastname,
@@ -49,8 +51,8 @@ class GuidesModel {
         this.dob,
         this.image,
         this.price,
-        this.phone,
         this.reviews,
+        this.phone,
     });
 
     factory GuidesModel.fromJson(String str) => GuidesModel.fromMap(json.decode(str));
@@ -58,14 +60,15 @@ class GuidesModel {
     String toJson() => json.encode(toMap());
 
     factory GuidesModel.fromMap(Map<String, dynamic> json) => GuidesModel(
+        pricePer: json["pricePer"],
         id: json["_id"],
         firstname: json["firstname"],
         lastname: json["lastname"],
         email: json["email"],
         password: json["password"],
         location: json["location"] == null ? null : Location.fromMap(json["location"]),
-        languages: json["languages"] == null ? [] : List<dynamic>.from(json["languages"]!.map((x) => x)),
-        specializations: json["specializations"] == null ? [] : List<dynamic>.from(json["specializations"]!.map((x) => x)),
+        languages: json["languages"] == null ? [] : List<String>.from(json["languages"]!.map((x) => x)),
+        specializations: json["specializations"] == null ? [] : List<String>.from(json["specializations"]!.map((x) => x)),
         rating: json["rating"],
         isVerified: json["isVerified"],
         documents: json["documents"] == null ? [] : List<dynamic>.from(json["documents"]!.map((x) => x)),
@@ -79,12 +82,13 @@ class GuidesModel {
         whatsapp: json["whatsapp"],
         dob: json["dob"] == null ? null : DateTime.parse(json["dob"]),
         image: json["image"],
-        price: json["price"],
-        phone: json["phone"],
+        price: json["price"] == null ? null : Price.fromMap(json["price"]),
         reviews: json["reviews"] == null ? [] : List<Review>.from(json["reviews"]!.map((x) => Review.fromMap(x))),
+        phone: json["phone"],
     );
 
     Map<String, dynamic> toMap() => {
+        "pricePer": pricePer,
         "_id": id,
         "firstname": firstname,
         "lastname": lastname,
@@ -106,9 +110,9 @@ class GuidesModel {
         "whatsapp": whatsapp,
         "dob": dob?.toIso8601String(),
         "image": image,
-        "price": price,
-        "phone": phone,
+        "price": price?.toMap(),
         "reviews": reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x.toMap())),
+        "phone": phone,
     };
 }
 
@@ -137,6 +141,26 @@ class Location {
         "country": country,
         "region": region,
         "city": city,
+    };
+}
+
+class Price {
+    String? numberDecimal;
+
+    Price({
+        this.numberDecimal,
+    });
+
+    factory Price.fromJson(String str) => Price.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Price.fromMap(Map<String, dynamic> json) => Price(
+        numberDecimal: json["\u0024numberDecimal"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "\u0024numberDecimal": numberDecimal,
     };
 }
 

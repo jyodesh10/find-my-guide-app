@@ -1,7 +1,9 @@
 import 'package:custom_rating_bar/custom_rating_bar.dart';
 import 'package:findmyguide/constants/font_constants.dart';
 import 'package:findmyguide/controllers/home_controller.dart';
+import 'package:findmyguide/models/tours_model.dart';
 import 'package:findmyguide/widgets/custom_cacheimage.dart';
+import 'package:findmyguide/widgets/custom_textfield.dart';
 import 'package:findmyguide/widgets/loading_widgets.dart';
 import 'package:findmyguide/widgets/review_card.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constants/color_constants.dart';
+import '../../../controllers/message_controller.dart';
+import '../tour/tour_detail_view.dart';
 
 class GuideDetailView extends StatefulWidget {
   const GuideDetailView({super.key, required this.id});
@@ -22,11 +26,13 @@ class GuideDetailView extends StatefulWidget {
 class _GuideDetailViewState extends State<GuideDetailView> {
 
   final controller = Get.put(HomeController());
+  final msgcontroller = Get.put(MessageController());
 
   @override
   void initState() {
     super.initState();
     controller.getGuideById(widget.id);
+    controller.getTourByGuideId(widget.id);
   }
 
   @override
@@ -54,11 +60,56 @@ class _GuideDetailViewState extends State<GuideDetailView> {
                 bioSection(),
                 languageAndSpecializationSection(),
                 contactSection(),
+                tourSection(),
                 reviewSection()
               ],
             ),
           ),
         )
+      ),
+      floatingActionButton: Obx(()=> controller.guideloading.isTrue
+        ? const SizedBox()
+        : FloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context, 
+              isScrollControlled: true,
+              builder: (context) {
+                return Padding(
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(15.sp),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: white
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomTextfield(
+                          hintText: "write a message",
+                          textInputAction: TextInputAction.search,
+                          controller: msgcontroller.messageCon,
+                        ),
+                        TextButton(
+                          onPressed: () async{
+                            await msgcontroller.sendMessage(widget.id, "", fromGuide: true);
+                          }, 
+                          child: Text("Send", style: midTextStyle,)
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          tooltip: "send a message",
+          backgroundColor: blue,
+          child: const Icon(Icons.chat_rounded, color: white,),
+        ),
       ),
       bottomNavigationBar: Obx(() => controller.guideloading.isTrue
         ? const LinearProgressIndicator(color: blue,)
@@ -79,7 +130,7 @@ class _GuideDetailViewState extends State<GuideDetailView> {
                     style: midTextStyle,
                   ),
                   Text(
-                    controller.guide.price.toString(),
+                     "\$ ${controller.guide.price!.numberDecimal} / ${controller.guide.pricePer}",
                     style: titleStyle,
                   )
                 ],
@@ -337,6 +388,107 @@ class _GuideDetailViewState extends State<GuideDetailView> {
       ],
     );
   }
+
+  tourSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15.sp).copyWith(bottom: 10.sp, top: 15.sp),
+          child: Text("Tours", style: titleStyle.copyWith(fontSize: 16.sp),),
+        ),
+        Obx(() => controller.tourByGuideLoading.isTrue
+          ? const LoadingGif()
+          : controller.toursByGuide.isNotEmpty 
+            ? SizedBox(
+              height: 65.sp,
+              child: CarouselView(
+                itemExtent: 65.sp,
+                backgroundColor: primaryClr, 
+                onTap: (i) {
+                  Get.to(() => TourDetailView(id:controller.toursByGuide[i].id.toString() ,),
+                      transition: Transition.fade);
+                },
+                children: List.generate(
+                  controller.toursByGuide.length, (index) {
+                    ToursModel tours = controller.toursByGuide[index];
+                    return Column(
+                      children: [
+                        Card(
+                          color: transparent,
+                          elevation: 10,
+                          shadowColor: black.withOpacity(0.2),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: 50.sp,
+                                width: 60.w,
+                                margin: EdgeInsets.only(bottom: 10.sp),
+                                decoration: BoxDecoration(
+                                  color: greyblue,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: CustomCachedNetworkImage(imageUrl: tours.image!.first.toString(), height: 52.sp, width: 60.w,),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(top: 12.sp, left: 12.sp),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 10.sp, vertical: 5.sp),
+                                decoration: BoxDecoration(
+                                  color: greyblue,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  tours.highlights!.duration
+                                      .toString(),
+                                  style: smallTextStyle,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 35.sp,
+                          width: 58.w,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tours.title.toString(),
+                                style: midTextStyle.copyWith(
+                                    fontWeight: FontWeight.w600),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                "\$ ${tours.price!.numberDecimal} / ${tours.pricePer}",
+                                style: smallTextStyle.copyWith(color: blue, fontWeight: FontWeight.bold),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                )
+              ),
+            )
+            : SizedBox(
+              height: 25.sp,
+              child: Center(
+                child: Text("No tours yet", style: subtitleStyle,),
+              ),
+            )
+        )
+      ],
+    );
+  }
   
   reviewSection() {
     return Column(
@@ -346,19 +498,26 @@ class _GuideDetailViewState extends State<GuideDetailView> {
           padding: EdgeInsets.symmetric(horizontal: 15.sp).copyWith(bottom: 10.sp, top: 15.sp),
           child: Text("Reviews", style: titleStyle.copyWith(fontSize: 16.sp),),
         ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18.sp),
-          child: Column(
-            children: List.generate(controller.guide.reviews!.length, (index) {
-              return ReviewCard(
-                image: controller.guide.reviews![index].user!.image.toString(), 
-                name: controller.guide.reviews![index].user!.username.toString(), 
-                rating: controller.guide.reviews![index].rating.toString(), 
-                comment: controller.guide.reviews![index].comment.toString()
-              );
-            })
-          ),
-        )
+        controller.guide.reviews!.isNotEmpty
+          ? Padding(
+            padding: EdgeInsets.symmetric(horizontal: 18.sp),
+            child: Column(
+              children: List.generate(controller.guide.reviews!.length, (index) {
+                return ReviewCard(
+                  image: controller.guide.reviews![index].user!.image.toString(), 
+                  name: controller.guide.reviews![index].user!.username.toString(), 
+                  rating: controller.guide.reviews![index].rating.toString(), 
+                  comment: controller.guide.reviews![index].comment.toString()
+                );
+              })
+            ),
+          )
+          : SizedBox(
+            height: 25.sp,
+            child: Center(
+              child: Text("No reviews yet", style: subtitleStyle,),
+            ),
+          )
       ],
     );
   }

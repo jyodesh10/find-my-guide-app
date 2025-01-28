@@ -50,7 +50,7 @@ class _BookingViewState extends State<BookingView> {
               );
             }, 
           )
-          : const EmptyWidget()
+          : const EmptyWidget(text: "No bookings",)
       ) 
     );
   }

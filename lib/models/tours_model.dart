@@ -1,18 +1,21 @@
 import 'dart:convert';
 
 class ToursModel {
+    String? pricePer;
     String? id;
     Guide? guide;
     String? title;
     String? description;
     Highlights? highlights;
-    String? price;
+    Price? price;
     List<String>? image;
     int? v;
     int? rating;
     List<Review>? reviews;
+    String? itinerary;
 
     ToursModel({
+        this.pricePer,
         this.id,
         this.guide,
         this.title,
@@ -23,6 +26,7 @@ class ToursModel {
         this.v,
         this.rating,
         this.reviews,
+        this.itinerary,
     });
 
     factory ToursModel.fromJson(String str) => ToursModel.fromMap(json.decode(str));
@@ -30,29 +34,33 @@ class ToursModel {
     String toJson() => json.encode(toMap());
 
     factory ToursModel.fromMap(Map<String, dynamic> json) => ToursModel(
+        pricePer: json["pricePer"],
         id: json["_id"],
         guide: json["guide"] == null ? null : Guide.fromMap(json["guide"]),
         title: json["title"],
         description: json["description"],
         highlights: json["highlights"] == null ? null : Highlights.fromMap(json["highlights"]),
-        price: json["price"],
+        price: json["price"] == null ? null : Price.fromMap(json["price"]),
         image: json["image"] == null ? [] : List<String>.from(json["image"]!.map((x) => x)),
         v: json["__v"],
         rating: json["rating"],
         reviews: json["reviews"] == null ? [] : List<Review>.from(json["reviews"]!.map((x) => Review.fromMap(x))),
+        itinerary: json["itinerary"],
     );
 
     Map<String, dynamic> toMap() => {
+        "pricePer": pricePer,
         "_id": id,
         "guide": guide?.toMap(),
         "title": title,
         "description": description,
         "highlights": highlights?.toMap(),
-        "price": price,
+        "price": price?.toMap(),
         "image": image == null ? [] : List<dynamic>.from(image!.map((x) => x)),
         "__v": v,
         "rating": rating,
         "reviews": reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x.toMap())),
+        "itinerary": itinerary,
     };
 }
 
@@ -145,6 +153,26 @@ class Location {
         "country": country,
         "region": region,
         "city": city,
+    };
+}
+
+class Price {
+    String? numberDecimal;
+
+    Price({
+        this.numberDecimal,
+    });
+
+    factory Price.fromJson(String str) => Price.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Price.fromMap(Map<String, dynamic> json) => Price(
+        numberDecimal: json["\u0024numberDecimal"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "\u0024numberDecimal": numberDecimal,
     };
 }
 

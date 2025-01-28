@@ -59,7 +59,7 @@ class _WishlistViewState extends State<WishlistView> {
                             SizedBox(
                               height: 6.sp,
                             ),
-                            Text(wishlist.tour!.price.toString(), style: smallTextStyle.copyWith(fontWeight: FontWeight.bold, color: blue),),
+                            Text("\$ ${wishlist.tour!.price!.numberDecimal} / ${wishlist.tour!.pricePer}", style: smallTextStyle.copyWith(fontWeight: FontWeight.bold, color: blue),),
                             Align(
                               alignment: Alignment.bottomRight,
                               child: TextButton(
@@ -85,7 +85,7 @@ class _WishlistViewState extends State<WishlistView> {
               );
             }, 
           )
-          : const EmptyWidget()
+          : const EmptyWidget(text: "Empty wishlist",)
       ) 
     );
   }
